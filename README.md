@@ -17,7 +17,7 @@ See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">research paper
 ### Code Organization
 The core X-Conv and PointCNN architecture are defined in ./pointcnn.py.
 
-The network/training/data augmentation hyperparameters for classification tasks are defined in ./pointcnn_cls/\*.py, for segmentation tasks are defined in ./pointcnn_cls/\*.py
+The network/training/data augmentation hyperparameters for classification tasks are defined in ./pointcnn_cls/\*.py, for segmentation tasks are defined in ./pointcnn_seg/\*.py
 
 ### Usage
 
