@@ -2,6 +2,7 @@
 
 gpu=
 setting=
+modelsFolder = "../../models/cls/"
 
 usage() { echo "train/val pointcnn_cls with -g gpu_id -x setting options"; }
 
@@ -34,6 +35,11 @@ if [ $setting_flag -eq 0 ]
 then
   echo "-x option is not presented!"
   usage; exit;
+fi
+
+if [ ! -d "$modelsFolder" ]
+then
+  mkdir -p "$modelsFolder"
 fi
 
 echo "Train/Val with setting $setting on GPU $gpu!"

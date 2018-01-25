@@ -2,6 +2,7 @@
 
 gpu=
 setting=
+modelsFolder = "../../models/cls/"
 
 usage() { echo "train/val pointcnn_cls with -g gpu_id -x setting options"; }
 
@@ -35,6 +36,12 @@ then
   echo "-x option is not presented!"
   usage; exit;
 fi
+
+if [ ! -d "$modelsFolder" ]
+then
+  mkdir -p "$modelsFolder"
+fi
+
 
 echo "Train/Val with setting $setting on GPU $gpu!"
 CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_cls.py -t ../../data/quick_draw/zips -s ../../models/cls -m pointcnn_cls -x $setting > ../../models/cls/pointcnn_cls_$setting.txt 2>&1 &
