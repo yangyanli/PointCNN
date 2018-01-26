@@ -2,7 +2,7 @@
 
 gpu=
 setting=
-modelsFolder = "../../models/seg/"
+modelsFolder="../../models/seg/"
 
 usage() { echo "train/val pointcnn_seg with -g gpu_id -x setting options"; }
 

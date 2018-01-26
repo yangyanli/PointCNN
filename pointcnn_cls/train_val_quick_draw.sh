@@ -2,7 +2,7 @@
 
 gpu=
 setting=
-modelsFolder = "../../models/cls/"
+modelsFolder="../../models/cls/"
 
 usage() { echo "train/val pointcnn_cls with -g gpu_id -x setting options"; }
 
