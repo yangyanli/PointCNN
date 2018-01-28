@@ -197,7 +197,7 @@ def main():
                         sess.run([update_ops, loss_op, t_1_acc_op],
                                  feed_dict={
                                      pts_fts: points_batch,
-                                     indices: pf.get_indices(batch_size_val, sample_num, points_num_batch, False),
+                                     indices: pf.get_indices(batch_size_val, sample_num, points_num_batch),
                                      xforms: xforms_np,
                                      rotations: rotations_np,
                                      jitter_range: np.array([jitter_val]),
