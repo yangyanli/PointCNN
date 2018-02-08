@@ -12,7 +12,7 @@ label_weights = []
 
 for c in range(num_parts):
 
-		label_weights.append(1.0)
+    label_weights.append(1.0)
 
 learning_rate_base = 0.01
 decay_steps = 20000
