@@ -8,6 +8,12 @@ batch_size = 24
 
 num_epochs = 1024
 
+label_weights = []
+
+for c in range(num_parts):
+
+		label_weights.append(1.0)
+
 learning_rate_base = 0.01
 decay_steps = 20000
 decay_rate = 0.9
