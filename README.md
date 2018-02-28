@@ -64,7 +64,7 @@ Here we list the commands for training/evaluating PointCNN on multiple datasets 
   cd ../pointcnn_cls
   ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
   ```
-* #### ScanNet
+  * #### ScanNet
   Please refer to <http://www.scan-net.org/>  for downloading ScanNet task data and scannet_labelmap, and refer to https://github.com/ScanNet/ScanNet/tree/master/Tasks/Benchmark for downloading ScanNet benchmark files:
   
   scannet_dataset_download
