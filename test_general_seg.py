@@ -110,7 +110,7 @@ def main():
             point_num = data_num[batch_idx]
 
             coordinates = [[float(value) for value in xyz.split(' ')]
-                           for xyz in open(input_filelist[batch_idx], 'r') if len(xyz.split(' ')) == 6]
+                           for xyz in open(input_filelist[batch_idx], 'r') if len(xyz.split(' ')) == setting.data_dim]
             assert(point_num == len(coordinates))
 
             tile_num = math.ceil((sample_num*batch_size)/point_num)
@@ -126,7 +126,6 @@ def main():
                              indices: indices_batch,
                              is_training: False,
                          })
-
 
             seg_probs_2d = np.reshape(seg_probs, (sample_num*batch_size, -1))
             

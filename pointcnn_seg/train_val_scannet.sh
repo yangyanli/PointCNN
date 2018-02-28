@@ -2,9 +2,9 @@
 
 gpu=
 setting=
-modelsFolder="../../models/cls/"
+modelsFolder="../../models/seg/"
 
-usage() { echo "train/val pointcnn_cls with -g gpu_id -x setting options"; }
+usage() { echo "train/val pointcnn_seg with -g gpu_id -x setting options"; }
 
 gpu_flag=0
 setting_flag=0
@@ -42,6 +42,5 @@ then
   mkdir -p "$modelsFolder"
 fi
 
-
 echo "Train/Val with setting $setting on GPU $gpu!"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_cls.py -t ../../../data/quick_draw/zips -s ../../models/cls/ -m pointnetpp_cls -x $setting > ../../models/cls/pointnetpp_cls_$setting.txt 2>&1 &
+CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t ../../data/data_scannet/train_files.txt -v ../../data/data_scannet/val_files.txt -s ../models/seg -m pointcnn_seg -x $setting > ../../models/seg/pointcnn_seg_$setting.txt 2>&1 &

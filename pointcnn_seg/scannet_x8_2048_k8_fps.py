@@ -1,16 +1,25 @@
 #!/usr/bin/python3
+import math
 
-num_parts = 13
+num_parts = 21
 
 sample_num = 2048
 
-batch_size = 16
+batch_size = 24
 
 num_epochs = 1024
 
 label_weights = []
+
 for c in range(num_parts):
-    label_weights.append(1.0)
+
+	if c == 0:
+
+		label_weights.append(0.0)
+
+	else:
+
+		label_weights.append(1.0)
 
 learning_rate_base = 0.005
 decay_steps = 20000
@@ -22,11 +31,17 @@ weight_decay = 0.0
 jitter = 0.001
 jitter_val = 0.0
 
-scaling_range = [0.1, 0.1, 0.1, 'g']
+
+rotation_range = [math.pi/72, math.pi, math.pi/72, 'u']
+rotation_range_val = [0, 0, 0, 'u']
+order = 'rxyz'
+
+scaling_range = [0.05, 0.05, 0.05, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
 x = 8
 
+# K, D, P, C
 # K, D, P, C
 xconv_params = [(8, 1, -1, 32 * x),
                 (12, 2, 768, 32 * x),
@@ -46,9 +61,7 @@ with_fps = True
 optimizer = 'adam'
 epsilon = 1e-3
 
-data_dim = 6
-use_extra_features = True
-with_normal_feature = False
+data_dim = 3
 with_X_transformation = True
 sorting_method = None
 

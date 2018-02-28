@@ -37,7 +37,7 @@ cd ../pointcnn_seg
 ./train_val_shapenet.sh -g 0 -x shapenet_x8_2048_fps
 ./test_shapenet.sh -g 0 -x shapenet_x8_2048_fps -l ../../models/seg/pointcnn_seg_shapenet_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 10
 cd ..
-python3 ./evaluate_seg.py -g ../data/shapenet_partseg/test_label -p ../data/shapenet_partseg/test_data_pred_10
+python3 ./evaluation/eval_shapenet_seg.py -g ../data/shapenet_partseg/test_label -p ../data/shapenet_partseg/test_data_pred_10
 ```
 
 Other datasets can be processed in a similar way.

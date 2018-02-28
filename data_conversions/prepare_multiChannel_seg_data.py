@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--folder', '-f', help='Path to data folder')
     parser.add_argument('--save_ply', '-s', help='Convert .pts to .ply', action='store_true')
-    parser.add_argument('--channel_num','-c',help='channel number of data',type=int,default=3)
+    parser.add_argument('--channel_num','-c',help='Channel number of data',type=int,default=3)
     args = parser.parse_args()
     print(args)
 
