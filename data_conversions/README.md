@@ -26,12 +26,12 @@ For S3DIS, you can download it at the original dataset website: http://buildingp
 **[optional]** For big scene point cloud datasets like **Scannet** and **S3DIS**, it's better to split into small blocks for training:
 
 ```
-python3 scannet_split.py
+python3 split_data/scannet_split.py
 ```
 
 ```
-python3 S3DIS_prepare_label.py
-python3 S3DIS_split.py
+python3 split_data/s3dis_prepare_label.py
+python3 split_data/s3dis_split.py
 ```
 
 After above manipulates, you can use this command to generate .h5 files:
