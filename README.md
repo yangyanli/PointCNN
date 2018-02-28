@@ -21,102 +21,93 @@ The network/training/data augmentation hyper parameters for classification tasks
 
 ## Usage
 
+Here we list the commands for training/evaluating PointCNN on multiple datasets and tasks.
+
 * ### Classification
 
   * #### ModelNet40
-
-    Commands for training and testing ModelNet40 classification:
-  	```
-    cd data_conversions
-    python3 ./download_datasets.py -d modelnet
-    cd ../pointcnn_cls
-    ./train_val_modelnet.sh -g 0 -x modelnet_x2_l4
-  	```
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d modelnet
+  cd ../pointcnn_cls
+  ./train_val_modelnet.sh -g 0 -x modelnet_x2_l4
+  ```
 
   * #### tu_berlin
-    Commands for training and testing tu_berlin classification:
-  	```
-    cd data_conversions
-    python3 ./download_datasets.py -d tu_berlin
-    cd ../pointcnn_cls
-    ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x2_l5
-  	```
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d tu_berlin
+  cd ../pointcnn_cls
+  ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x2_l5
+  ```
 
   * #### MNIST
-	Commands for training and testing MNIST classification:
-  	```
-    cd data_conversions
-    python3 ./download_datasets.py -d mnist
-    cd ../pointcnn_cls
-    ./train_val_mnist.sh -g 0 -x mnist_x2_l5
-  	```
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d mnist
+  cd ../pointcnn_cls
+  ./train_val_mnist.sh -g 0 -x mnist_x2_l5
+ 	```
 
   * #### CIFAR-10
-	Commands for training and testing CIFAR-10 classification:
-  	```
-    cd data_conversions
-    python3 ./download_datasets.py -d cifar10
-    cd ../pointcnn_cls
-    ./train_val_cifar10.sh -g 0 -x cifar10_x2_l4
-  	```
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d cifar10
+  cd ../pointcnn_cls
+  ./train_val_cifar10.sh -g 0 -x cifar10_x2_l4
+  ```
 
   * #### quick_darw
-	Commands for training and testing quick_draw classification:
-  	```
-    cd data_conversions
-    python3 ./download_datasets.py -d quick_draw
-    cd ../pointcnn_cls
-    ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
-  	```
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d quick_draw
+  cd ../pointcnn_cls
+  ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
+  ```
 
 * ### Segmentation
-  Before you use this section code, you should compile FPS firstly:
-  ```
-  cd sampling
-  bash tf_sampling_compile.sh
-  ```
+
+	We use farthest point sampling (the implementation from <a href="https://github.com/charlesq34/pointnet2" target="_blank">PointNet++</a> in segmentation tasks. Compile FPS before the training/evaluation:
+	```
+	cd sampling
+	bash tf_sampling_compile.sh
+	```
 
   * #### ShapeNet
-
-    Commands for training and testing ShapeNet Parts segmentation:
-    ```
-    cd data_conversions
-    python3 ./download_datasets.py -d shapenet_partseg
-    cd ../pointcnn_seg
-    ./train_val_shapenet.sh -g 0 -x shapenet_x8_2048_fps
-    ./test_shapenet.sh -g 0 -x shapenet_x8_2048_fps -l ../../models/seg/pointcnn_seg_shapenet_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 10
-    cd ../evaluation
-    python3 eval_shapenet_seg.py -g ../../data/shapenet_partseg/test_label -p ../../data/shapenet_partseg/test_data_pred_10
-    ```
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d shapenet_partseg
+  cd ../pointcnn_seg
+  ./train_val_shapenet.sh -g 0 -x shapenet_x8_2048_fps
+  ./test_shapenet.sh -g 0 -x shapenet_x8_2048_fps -l ../../models/seg/pointcnn_seg_shapenet_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 10
+  cd ../evaluation
+  python3 eval_shapenet_seg.py -g ../../data/shapenet_partseg/test_label -p ../../data/shapenet_partseg/test_data_pred_10
+  ```
 
   * #### S3DIS
-
-    Commands for training and testing S3DIS semantic segmentation:
-    ```
-    cd data_conversions/split_data
-    python3 s3dis_prepare_label.py
-    python3 s3dis_split.py
-    cd ..
-    python3 prepare_multiChannel_seg_data.py -f ../../data/S3DIS/out_part_rgb/ -c 6
-    ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_fps_k16
-    ./test_shapenet.sh -g 0 -x s3dis_x8_2048_fps_k16 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
-    cd ../evaluation
-    python3 eval_s3dis.py
-    ```
+	Please refer to [data_conversions](data_conversions/README.md) for downloading S3DIS, then:
+  ```
+  cd data_conversions/split_data
+  python3 s3dis_prepare_label.py
+  python3 s3dis_split.py
+  cd ..
+  python3 prepare_multiChannel_seg_data.py -f ../../data/S3DIS/out_part_rgb/ -c 6
+  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_fps_k16
+  ./test_shapenet.sh -g 0 -x s3dis_x8_2048_fps_k16 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
+  cd ../evaluation
+  python3 eval_s3dis.py
+  ```
 
   * #### ScanNet
-
-    Commands for training and testing ScanNet semantic segmentation:
-
-    ```
-    cd data_conversions/split_data
-    python3 scannet_split.py
-    cd ..
-    python3 prepare_multiChannel_seg_data.py -f ../../data/scannet/scannet_split_dataset/
-    cd ../pointcnn_seg
-    ./train_val_scannet.sh -g 0 -x scannet_x8_2048_k8_fps
-    ./test_scannet.sh -g 0 -x scannet_x8_2048_k8_fps -l ../../models/seg/pointcnn_seg_scannet_x8_2048_k8_fps_xxxx/ckpts/iter-xxxxx -r 4
-    cd ../evaluation
-    python3 eval_scannet.py
-    ```
-
+	Please refer to [data_conversions](data_conversions/README.md) for downloading ScanNet, then:
+  ```
+  cd data_conversions/split_data
+  python3 scannet_split.py
+  cd ..
+  python3 prepare_multiChannel_seg_data.py -f ../../data/scannet/scannet_split_dataset/
+  cd ../pointcnn_seg
+  ./train_val_scannet.sh -g 0 -x scannet_x8_2048_k8_fps
+  ./test_scannet.sh -g 0 -x scannet_x8_2048_k8_fps -l ../../models/seg/pointcnn_seg_scannet_x8_2048_k8_fps_xxxx/ckpts/iter-xxxxx -r 4
+  cd ../evaluation
+  python3 eval_scannet.py
+  ```
