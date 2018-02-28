@@ -37,16 +37,16 @@ def dir(root, type='f', addroot=True):
         return 0
 
 
-block_data_root = "./scannet_split_dataset/val_data/01/"
-block_label_root = "./scannet_split_dataset/val_label/01/"
-block_trans_root = "./scannet_split_dataset/val_trans/01/"
-block_pred_root = "./_pred_RGB4/01/"
+block_data_root = "../../data/scannet/scannet_split_dataset/val_data/01/"
+block_label_root = "../../data/scannet/scannet_split_dataset/val_label/01/"
+block_trans_root = "../../data/scannet/scannet_split_dataset/val_trans/01/"
+block_pred_root = "../../data/scannet/scannet_split_dataset/val_data/pred_4/01/"
 
 save_voxel_re = True
 
-seg_pred_out_root = "./out/seg_pred_voxel/"
-seg_label_out_root = "./out/seg_label_voxel/"
-pts_out_root = "./out/pts_voxel/"
+seg_pred_out_root = "../../data/scannet/scannet_split_dataset/val_data/pred_4/out/seg_pred_voxel/"
+seg_label_out_root = "../../data/scannet/scannet_split_dataset/val_data/pred_4/out/seg_label_voxel/"
+pts_out_root = "../../data/scannet/scannet_split_dataset/val_data/pred_4/out/pts_voxel/"
 
 # check the path
 if not os.path.exists(seg_pred_out_root):

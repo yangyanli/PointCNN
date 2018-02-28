@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(__file__)
 gt_label_filenames = []
 path_pred_label = []
 
-ROOT_DIR = os.path.join(BASE_DIR,"prepare_label_rgb")
+ROOT_DIR = os.path.join(BASE_DIR,"../../../data/S3DIS/prepare_label_rgb")
 Areas = os.listdir(ROOT_DIR)
 for area in Areas:
     Rooms = os.listdir(os.path.join(ROOT_DIR,area))

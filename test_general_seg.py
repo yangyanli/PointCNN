@@ -38,7 +38,7 @@ def main():
     num_parts = setting.num_parts
 
     # Prepare output folder
-    output_folder = args.data_folder + '_pred_RGB'+str(args.repeat_num)
+    output_folder = args.data_folder + 'pred_'+str(args.repeat_num)
     category_list = [(category, int(label_num)) for (category, label_num) in
                      [line.split() for line in open(args.category, 'r')]]
     for category, _ in category_list:

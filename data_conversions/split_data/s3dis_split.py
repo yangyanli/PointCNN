@@ -9,7 +9,7 @@ import random
 import math
 import numpy as np
 
-BASE_DIR = os.path.join(os.path.dirname(__file__), 'prepare_label_rgb')
+BASE_DIR = os.path.join(os.path.dirname(__file__), '../../../data/S3DIS/prepare_label_rgb')
 
 res = 0.05  # 5cm
 max_b = 1.5
@@ -19,13 +19,13 @@ part_min_pnum = 600
 sample_flag = False
 
 # out path
-train_data_root = "./out_part/train_data_downsampling/"
-train_label_root = "./out_part/train_label_downsampling/"
-train_trans_root = "./out_part/train_trans_downsampling/"
+train_data_root = "../../../data/S3DIS/out_part_rgb/train_data_downsampling/"
+train_label_root = "../../../data/S3DIS/out_part_rgb/train_label_downsampling/"
+train_trans_root = "../../../data/S3DIS/out_part_rgb/train_trans_downsampling/"
 
-test_data_root = "./out_part_rgb/test_data_downsampling/"
-test_label_root = "./out_part_rgb/test_data_downsampling/"
-test_trans_root = "./out_part_rgb/test_data_downsampling/"
+test_data_root = "../../../data/S3DIS/out_part_rgb/test_data_downsampling/"
+test_label_root = "../../../data/S3DIS/out_part_rgb/test_label_downsampling/"
+test_trans_root = "../../../data/S3DIS/out_part_rgb/test_trans_downsampling/"
 
 
 def pc_getbbox(pc):
