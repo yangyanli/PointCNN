@@ -64,7 +64,29 @@ Here we list the commands for training/evaluating PointCNN on multiple datasets 
   cd ../pointcnn_cls
   ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
   ```
+* #### ScanNet
+  Please refer to <http://www.scan-net.org/>  for downloading ScanNet task data and scannet_labelmap, and refer to https://github.com/ScanNet/ScanNet/tree/master/Tasks/Benchmark for downloading ScanNet benchmark files:
+  
+  scannet_dataset_download
+  
+  |_ data
+  
+  |_ scannet_labelmap
+  
+  |_ benchmark
 
+  ```
+  cd ../data/scannet/scannet_dataset_download/
+  mv ./scannet_labelmap/scannet-labels.combined.tsv ../benchmark/
+
+  #./pointcnn_root
+  cd ../../../pointcnn/data_conversions
+  python scannet_extract_obj.py -f ../../data/scannet/scannet_dataset_download/data/ -b ../../data/scannet/scannet_dataset_download/benchmark/ -o ../../data/scannet/cls/
+  python prepare_scannet_cls_data.py -f ../../data/scannet/cls/
+  cd ../pointcnn_cls/
+  ./train_val_scannet.sh -g 0 -x scannet_x2_l4.py
+  ```
+  
 * ### Segmentation
 
 	We use farthest point sampling (the implementation from <a href="https://github.com/charlesq34/pointnet2" target="_blank">PointNet++</a> in segmentation tasks. Compile FPS before the training/evaluation:
