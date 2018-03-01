@@ -56,16 +56,16 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd ../pointcnn_cls
   ./train_val_modelnet.sh -g 0 -x modelnet_x2_l4
   ```
-  
+
   * #### ScanNet
   Please refer to <http://www.scan-net.org/>  for downloading ScanNet task data and scannet_labelmap, and refer to https://github.com/ScanNet/ScanNet/tree/master/Tasks/Benchmark for downloading ScanNet benchmark files:
-  
+
   scannet_dataset_download
-  
+
   |_ data
-  
+
   |_ scannet_labelmap
-  
+
   |_ benchmark
 
   ```
@@ -84,10 +84,11 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ```
   cd data_conversions
   python3 ./download_datasets.py -d tu_berlin
+  python3 ./prepare_tu_berlin_data.py -f ../../data/tu_berlin/ -a
   cd ../pointcnn_cls
   ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x2_l5
   ```
-  
+
   * #### quick_darw
   Note that the training/evaluation of quick_draw requires LARGE RAM, as we load all stokes into RAM and converting them into point cloud on-the-fly.
   ```
@@ -96,35 +97,38 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd ../pointcnn_cls
   ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
   ```
-  
+
   * #### MNIST
   ```
   cd data_conversions
   python3 ./download_datasets.py -d mnist
+  python3 ./prepare_mnist_data.py -f ../../data/mnist
   cd ../pointcnn_cls
   ./train_val_mnist.sh -g 0 -x mnist_x2_l5
- 	```
+  ```
 
   * #### CIFAR-10
   ```
   cd data_conversions
   python3 ./download_datasets.py -d cifar10
+  python3 ./prepare_cifar10_data.py -f ../../data/cifar10
   cd ../pointcnn_cls
   ./train_val_cifar10.sh -g 0 -x cifar10_x2_l4
   ```
-  
+
 * ### Segmentation
 
-	We use farthest point sampling (the implementation from <a href="https://github.com/charlesq34/pointnet2" target="_blank">PointNet++</a>) in segmentation tasks. Compile FPS before the training/evaluation:
-	```
-	cd sampling
-	bash tf_sampling_compile.sh
-	```
+  We use farthest point sampling (the implementation from <a href="https://github.com/charlesq34/pointnet2" target="_blank">PointNet++</a>) in segmentation tasks. Compile FPS before the training/evaluation:
+  ```
+  cd sampling
+  bash tf_sampling_compile.sh
+  ```
 
   * #### ShapeNet
   ```
   cd data_conversions
   python3 ./download_datasets.py -d shapenet_partseg
+  python3 ./prepare_partseg_data.py -f ../../data/shapenet_partseg
   cd ../pointcnn_seg
   ./train_val_shapenet.sh -g 0 -x shapenet_x8_2048_fps
   ./test_shapenet.sh -g 0 -x shapenet_x8_2048_fps -l ../../models/seg/pointcnn_seg_shapenet_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 10
@@ -133,7 +137,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ```
 
   * #### S3DIS
-	Please refer to [data_conversions](data_conversions/README.md) for downloading S3DIS, then:
+  Please refer to [data_conversions](data_conversions/README.md) for downloading S3DIS, then:
   ```
   cd data_conversions/split_data
   python3 s3dis_prepare_label.py
@@ -147,7 +151,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ```
 
   * #### ScanNet
-	Please refer to [data_conversions](data_conversions/README.md) for downloading ScanNet, then:
+  Please refer to [data_conversions](data_conversions/README.md) for downloading ScanNet, then:
   ```
   cd data_conversions/split_data
   python3 scannet_split.py
