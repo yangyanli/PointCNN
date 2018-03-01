@@ -15,13 +15,33 @@ PointCNN is a simple and general framework for feature learning from point cloud
 See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">research paper on arXiv</a> for more details.
 
 ## Code Organization
-The core X-Conv and PointCNN architecture are defined in ./pointcnn.py.
+The core X-Conv and PointCNN architecture are defined in [pointcnn.py](pointcnn.py).
 
-The network/training/data augmentation hyper parameters for classification tasks are defined in ./pointcnn_cls/\*.py, for segmentation tasks are defined in ./pointcnn_seg/\*.py
+The network/training/data augmentation hyper parameters for classification tasks are defined in [pointcnn_cls](pointcnn_cls), for segmentation tasks are defined in [pointcnn_seg](pointcnn_seg).
 
-## Usage
+### Explanation of X-Conv Parameters
+Take the xconv_params and xdconv_params from [shapenet_x8_2048_fps.py](pointcnn_seg/shapenet_x8_2048_fps.py) for example:
+```
+# K, D, P, C
+xconv_params = [(8, 1, -1, 32 * x),
+                (12, 2, 768, 32 * x),
+                (16, 2, 384, 64 * x),
+                (16, 6, 128, 128 * x)]
 
-Here we list the commands for training/evaluating PointCNN on multiple datasets and tasks.
+# K, D, pts_layer_idx, qrs_layer_idx
+xdconv_params = [(16, 6, 3, 2),
+                 (12, 6, 2, 1),
+                 (8, 6, 1, 0),
+                 (8, 4, 0, 0)]
+```
+Each element in xconv_params is a tuple of (K, D, P, C), where K is the neighborhood size, D is the dilation rate, P is the representative point number in the output (-1 means all input points are output representative points), and C is the output channel number. Each element specifies the parameters of one X-Conv layer, and they are stacked to create a deep network.
+
+Each element in xdconv_params is a tuple of (K, D, pts_layer_idx, qrs_layer_idx), where K and D have the same meaning as that in xconv_params, pts_layer_idx specifies the output of which X-Conv layer (from the xconv_params) will be the input of this X-DeConv layer, and qrs_layer_idx specifies the output of which X-Conv layer (from the xconv_params) will be forwarded and fused with the output of this X-DeConv layer. The P and C parameters of this X-DeConv layer is also determined by qrs_layer_idx. Similarly, each element specifies the parameters of one X-DeConv layer, and they are stacked to create a deep network.
+
+
+## PointCNN Usage
+
+Here we list the commands for training/evaluating PointCNN on classification and segmentation tasks on multiple datasets.
 
 * ### Classification
 
