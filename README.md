@@ -41,6 +41,8 @@ Each element in xdconv_params is a tuple of (K, D, pts_layer_idx, qrs_layer_idx)
 
 ## PointCNN Usage
 
+PointCNN is implemented and tested with Tensorflow 1.4 in python3 scripts. **Tensorflow before 1.3 version is not recommended, as Tensoflow 1.3 introduced a notable speedup in top_k operation, which PointCNN heavily depends for nearest neighbor query.** It has dependencies on somce python packages such as transforms3d, h5py, plyfile, and maybe more if it complains. Install these packages before the use of PointCNN.
+
 Here we list the commands for training/evaluating PointCNN on classification and segmentation tasks on multiple datasets.
 
 * ### Classification
