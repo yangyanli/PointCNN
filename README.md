@@ -19,7 +19,7 @@ The core X-Conv and PointCNN architecture are defined in [pointcnn.py](pointcnn.
 
 The network/training/data augmentation hyper parameters for classification tasks are defined in [pointcnn_cls](pointcnn_cls), for segmentation tasks are defined in [pointcnn_seg](pointcnn_seg).
 
-### Explanation of X-Conv Parameters
+### Explanation of X-Conv and X-DeConv Parameters
 Take the xconv_params and xdconv_params from [shapenet_x8_2048_fps.py](pointcnn_seg/shapenet_x8_2048_fps.py) for example:
 ```
 # K, D, P, C
