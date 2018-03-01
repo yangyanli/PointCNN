@@ -32,38 +32,7 @@ Here we list the commands for training/evaluating PointCNN on multiple datasets 
   cd ../pointcnn_cls
   ./train_val_modelnet.sh -g 0 -x modelnet_x2_l4
   ```
-
-  * #### tu_berlin
-  ```
-  cd data_conversions
-  python3 ./download_datasets.py -d tu_berlin
-  cd ../pointcnn_cls
-  ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x2_l5
-  ```
-
-  * #### MNIST
-  ```
-  cd data_conversions
-  python3 ./download_datasets.py -d mnist
-  cd ../pointcnn_cls
-  ./train_val_mnist.sh -g 0 -x mnist_x2_l5
- 	```
-
-  * #### CIFAR-10
-  ```
-  cd data_conversions
-  python3 ./download_datasets.py -d cifar10
-  cd ../pointcnn_cls
-  ./train_val_cifar10.sh -g 0 -x cifar10_x2_l4
-  ```
-
-  * #### quick_darw
-  ```
-  cd data_conversions
-  python3 ./download_datasets.py -d quick_draw
-  cd ../pointcnn_cls
-  ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
-  ```
+  
   * #### ScanNet
   Please refer to <http://www.scan-net.org/>  for downloading ScanNet task data and scannet_labelmap, and refer to https://github.com/ScanNet/ScanNet/tree/master/Tasks/Benchmark for downloading ScanNet benchmark files:
   
@@ -85,6 +54,39 @@ Here we list the commands for training/evaluating PointCNN on multiple datasets 
   python prepare_scannet_cls_data.py -f ../../data/scannet/cls/
   cd ../pointcnn_cls/
   ./train_val_scannet.sh -g 0 -x scannet_x2_l4.py
+  ```
+
+  * #### tu_berlin
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d tu_berlin
+  cd ../pointcnn_cls
+  ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x2_l5
+  ```
+  
+  * #### quick_darw
+  Note that the training/evaluation of quick_draw requires LARGE RAM, as we load all stokes into RAM and converting them into point cloud on-the-fly.
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d quick_draw
+  cd ../pointcnn_cls
+  ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
+  ```
+  
+  * #### MNIST
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d mnist
+  cd ../pointcnn_cls
+  ./train_val_mnist.sh -g 0 -x mnist_x2_l5
+ 	```
+
+  * #### CIFAR-10
+  ```
+  cd data_conversions
+  python3 ./download_datasets.py -d cifar10
+  cd ../pointcnn_cls
+  ./train_val_cifar10.sh -g 0 -x cifar10_x2_l4
   ```
   
 * ### Segmentation
