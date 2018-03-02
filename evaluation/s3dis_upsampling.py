@@ -138,10 +138,10 @@ def seg2color(seg):
     return color
 
 ###########need to modify paths when you run this code#############
-pts_file_root = "../../../data/S3DIS//out_part_rgb/test/train_data/Area6_data/01"
-seg_file_root = "../../../data/S3DIS//pred/Area6_data/"
-out_seg_root = "../../../data/S3DIS//upsampling/upsample_pred_A6/seg/"
-out_ply_root = "../../../data/S3DIS//upsample_pred_A6/ply/"
+pts_file_root = "../../../data/S3DIS/out_part_rgb/train_data/Area6_data/01"
+seg_file_root = "../../../data/S3DIS/pred/Area6_data/"
+out_seg_root = "../../../data/S3DIS/upsampling/upsample_pred_A6/seg/"
+out_ply_root = "../../../data/S3DIS/upsample_pred_A6/ply/"
 
 if not os.path.exists(out_seg_root):
     print(out_seg_root, "Not Exists! Create", out_seg_root)

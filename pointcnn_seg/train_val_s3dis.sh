@@ -43,4 +43,4 @@ then
 fi
 
 echo "Train/Val with setting $setting on GPU $gpu!"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t ../../data/S3DIS/out_part_rgb/train_files.txt -v ../../data/S3DIS/out_part_rgb/val_files.txt -s ../../models/seg/ -m pointcnn_seg -x $setting > ../../models/seg/pointcnn_seg_$setting.txt 2>&1 &
+CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t ../../data/S3DIS/out_part_rgb/train1_files.txt -v ../../data/S3DIS/out_part_rgb/val1_files.txt -s ../../models/seg/ -m pointcnn_seg -x $setting > ../../models/seg/pointcnn_seg_$setting.txt 2>&1 &

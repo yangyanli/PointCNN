@@ -92,11 +92,14 @@ Here we list the commands for training/evaluating PointCNN on multiple datasets 
   python3 s3dis_split.py
   cd ..
   python3 prepare_multiChannel_seg_data.py -f ../../data/S3DIS/out_part_rgb/ -c 6
+  mv S3DIS_files/* ../../data/S3DIS/out_part_rgb/
   ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_fps_k16
-  ./test_shapenet.sh -g 0 -x s3dis_x8_2048_fps_k16 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
+  ./test_s3dis.sh -g 0 -x s3dis_x8_2048_fps_k16 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
   cd ../evaluation
+  python3 s3dis_upsampling.py
   python3 eval_s3dis.py
   ```
+  Please notice that these command just for Area1 validation, after modify the train val path in train_val_s3dis.sh, test_s3dis.sh and s3dis_upsampling, you can get other Area results.
 
   * #### ScanNet
   Please refer to [data_conversions](data_conversions/README.md) for downloading ScanNet, then:

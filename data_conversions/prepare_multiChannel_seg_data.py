@@ -24,9 +24,17 @@ def main():
     args = parser.parse_args()
     print(args)
 
-    root = args.folder if args.folder else '../../data/S3DIS/out_part_rgb'
+    root = args.folder if args.folder else '../../data/S3DIS/out_part_rgb/'
     folders = [(root + 'train_data', root + 'train_label'),
                (root + 'val_data', root + 'val_label')]
+
+    if "S3DIS" in args.folder:
+        folders = [(root + 'Area1_data', root + 'Area1_label'),
+                   (root + 'Area2_data', root + 'Area2_label'),
+                   (root + 'Area3_data', root + 'Area3_label'),
+                   (root + 'Area4_data', root + 'Area4_label'),
+                   (root + 'Area5_data', root + 'Area5_label'),
+                   (root + 'Area6_data', root + 'Area6_label')]
     category_label_seg_max_dict = dict()
     max_point_num = 0
     label_seg_min = sys.maxsize
