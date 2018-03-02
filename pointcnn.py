@@ -24,7 +24,8 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
     nn_pts_local_bn = pf.batch_normalization(nn_pts_local, is_training, name=tag + 'nn_pts_local')
 
     # Prepare features to be transformed
-    nn_fts_from_pts = pf.dense(nn_pts_local_bn, C_pts_fts, tag + 'nn_fts_from_pts', is_training, with_bn=False)
+    nn_fts_from_pts_0 = pf.dense(nn_pts_local_bn, C_pts_fts, tag + 'nn_fts_from_pts_0', is_training)
+    nn_fts_from_pts = pf.dense(nn_fts_from_pts_0, C_pts_fts, tag + 'nn_fts_from_pt', is_training)
     if fts is None:
         nn_fts_input = nn_fts_from_pts
     else:

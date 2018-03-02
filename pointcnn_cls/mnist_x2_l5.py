@@ -26,7 +26,7 @@ decay_steps = 8000
 decay_rate = 0.6
 learning_rate_min = 0.00001
 
-weight_decay = 0.0
+weight_decay = 1e-4
 
 jitter = 0.01
 jitter_val = 0.01

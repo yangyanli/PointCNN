@@ -141,14 +141,9 @@ def main():
 
     saver = tf.train.Saver(max_to_keep=None)
 
-    # backup this file, model and setting
-    shutil.copy(__file__, os.path.join(root_folder, os.path.basename(__file__)))
-    shutil.copy(os.path.join(os.path.dirname(__file__), args.model + '.py'),
-                os.path.join(root_folder, args.model + '.py'))
-    if not os.path.exists(os.path.join(root_folder, args.model)):
-        os.makedirs(os.path.join(root_folder, args.model))
-    shutil.copy(os.path.join(setting_path, args.setting + '.py'),
-                os.path.join(root_folder, args.model, args.setting + '.py'))
+    # backup all code
+    code_folder = os.path.abspath(os.path.dirname(__file__))
+    shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
 
     folder_ckpt = os.path.join(root_folder, 'ckpts')
     if not os.path.exists(folder_ckpt):

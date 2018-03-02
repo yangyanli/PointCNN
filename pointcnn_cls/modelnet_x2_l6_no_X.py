@@ -26,7 +26,7 @@ decay_steps = 8000
 decay_rate = 0.5
 learning_rate_min = 1e-6
 
-weight_decay = 0.0
+weight_decay = 1e-4
 
 jitter = 0.0
 jitter_val = 0.0
@@ -54,7 +54,7 @@ fc_params = [(128 * x, 0.0), (64 * x, 0.5)]
 with_fps = False
 
 optimizer = 'adam'
-epsilon = 1e-2
+epsilon = 1e-3
 
 data_dim = 6
 use_extra_features = False
