@@ -172,7 +172,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   bash download_semantic3d.sh
   bash un7z_semantic3d.sh
   mkdir ../../data/semantic3d/val
-  mv ../../data/semantic3d/train/bildstein_station3_xyz_intensity_rgb.txt ../../data/semantic3d/train/domfountain_station2_xyz_intensity_rgb.txt ../../data/semantic3d/train/sg27_station4_intensity_rgb.txt ../../data/semantic3d/train/untermaederbrunnen_station3_xyz_intensity_rgb.txt ../../data/semantic3d/val
+  mv ../../data/semantic3d/train/bildstein_station3_xyz_intensity_rgb.* ../../data/semantic3d/train/domfountain_station2_xyz_intensity_rgb.* ../../data/semantic3d/train/sg27_station4_intensity_rgb.* ../../data/semantic3d/train/untermaederbrunnen_station3_xyz_intensity_rgb.* ../../data/semantic3d/val
   cd split_data
   python3 semantic3d_split.py
   cd ..
