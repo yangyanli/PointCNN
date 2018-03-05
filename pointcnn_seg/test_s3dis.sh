@@ -6,7 +6,7 @@ ckpt=
 repeat=
 save_ply=
 
-usage() { echo "test pointcnn_seg with -g gpu_id -x setting -l ckpt - repeat -s options"; }
+usage() { echo "test pointcnn_seg with -g gpu_id -x setting -l ckpt -r repeat -s options"; }
 
 gpu_flag=0
 setting_flag=0
