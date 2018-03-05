@@ -3,16 +3,16 @@
 gpu=
 setting=
 ckpt=
-repeat=
+epeat=
 save_ply=
 
-usage() { echo "test pointcnn_seg with -g gpu_id -x setting -l ckpt -r repeat -s options"; }
+usage() { echo "test pointcnn_seg with -g gpu_id -x setting -l ckpt - repeat -s options"; }
 
 gpu_flag=0
 setting_flag=0
 ckpt_flag=0
 repeat_flag=0
-while getopts g:x:l:r:sh opt; do
+while getopts g:x:l::sh opt; do
   case $opt in
   g)
     gpu_flag=1;
@@ -27,7 +27,7 @@ while getopts g:x:l:r:sh opt; do
     ckpt=${OPTARG}
     ;;
   r)
-    repeat_flag=1;
+    repeat_flag =1;
     repeat=$(($OPTARG))
     ;;
   s)
@@ -42,27 +42,27 @@ shift $((OPTIND-1))
 
 if [ $gpu_flag -eq 0 ]
 then
-  echo "-g option is not presented!"
+  echo "-g option is not pesented!"
   usage; exit;
 fi
 
 if [ $setting_flag -eq 0 ]
 then
-  echo "-x option is not presented!"
+  echo "-x option is not pesented!"
   usage; exit;
 fi
 
 if [ $ckpt_flag -eq 0 ]
 then
-  echo "-l option is not presented!"
+  echo "-l option is not pesented!"
   usage; exit;
 fi
 
 if [ $repeat_flag -eq 0 ]
 then
-  echo "-r option is not presented!"
+  echo "- option is not presented!"
   usage; exit;
 fi
 
-echo "Test setting $setting on GPU $gpu with checkpoint $ckpt! with repeat $repeat"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/S3DIS/out_part_rgb/val1.txt -f ../../data/S3DIS/out_part_rgb/Area1_data/ -c ../../data/S3DIS/out_part_rgb/categories.txt -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
+echo "Test setting $setting on GPU $gpu with checkpoint $ckpt! with epeat $repeat"
+CUDA_VISIBLE_DEVICES=$gpu python3 ../test_geneal_seg.py -t ../../data/S3DIS/out_part_rgb/val1.txt -f ../../data/S3DIS/out_part_rgb/Area1_data/ -c ../../data/S3DIS/out_part_rgb/categories.txt -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
