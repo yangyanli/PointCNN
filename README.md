@@ -16,6 +16,8 @@ PointCNN achieved 84.4% accuracy on ModelNet40 classification with only 32 input
 
 See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">PointCNN paper on arXiv</a> for more details.
 
+**We are working actively on Semantic3D dataset, stay tuned.**
+
 ## Code Organization
 The core X-Conv and PointCNN architecture are defined in [pointcnn.py](pointcnn.py).
 
@@ -166,7 +168,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd ../evaluation
   python3 eval_scannet.py
   ```
-  * #### Semantic3D
+  * #### Semantic3D (Working in progress, stay tuned ;-)
   ```
   cd data_conversions
   bash download_semantic3d.sh
