@@ -13,7 +13,6 @@ BASE_DIR = os.path.join(os.path.dirname(__file__), '../../../data/S3DIS/prepare_
 res = 0.05  # 5cm
 max_b = 1.5
 overlap = 0.75
-edge = 0.3
 block_min_pnum = 600
 
 # out path
@@ -117,7 +116,6 @@ def unpickle(npy_file, out_data, out_label, out_trans):
 
                 # split to blocks
                 block_indices = {}
-                block_edge_indices = {}
                 block_len = []
                 block_needmerge = []
 
@@ -126,16 +124,11 @@ def unpickle(npy_file, out_data, out_label, out_trans):
                     print("Process block", k, block)
 
                     block_indices[k] = []
-                    block_edge_indices[k] = []
 
                     for i, p in enumerate(pf):
 
                         if p[0] >= block[0] and p[0] <= block[2] and p[1] >= block[1] and p[1] <= block[3]:
                             block_indices[k].append(i)
-
-                        elif p[0] >= (block[0] - edge) and p[0] <= (block[2] + edge) and  \
-                                p[1] >= (block[1] - edge) and p[1] <= (block[3] + edge):
-                            block_edge_indices[k].append(i)
 
                     block_len.append(len(block_indices[k]))
 
@@ -207,10 +200,6 @@ def unpickle(npy_file, out_data, out_label, out_trans):
                         for n in block_indices[save_k]:
                             pf_block.append(pf[n])
                             sf_block.append(sf[n])
-
-                        for n in block_edge_indices[save_k]:
-                            pf_block.append(pf[n])
-                            sf_block.append(0)
 
                     bbox_block = pc_getbbox(pf_block)
                     trans = [(bbox_block[1] - bbox_block[0]) / 2 + bbox_block[0],
