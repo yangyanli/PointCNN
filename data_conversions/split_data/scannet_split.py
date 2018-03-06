@@ -9,8 +9,8 @@ import pickle
 import os
 import math
 
-pkl_file_test = open('../../../data/scannet/scannet_test.pickle', 'rb')
-pkl_file_train = open('../../../data/scannet/scannet_train.pickle', 'rb')
+pkl_file_test = open('../../data/scannet/scannet_test.pickle', 'rb')
+pkl_file_train = open('../../data/scannet_train.pickle', 'rb')
 
 classid = "01"
 
@@ -23,7 +23,7 @@ edge = 0.3
 block_min_pnum = 600
 
 # out path
-out_root = '../../../data/scannet/scannet_split_dataset/'
+out_root = '../../data/scannet_split_dataset/'
 
 train_data_root = out_root + '/train_data/' + classid + "/"
 train_label_root = out_root + '/train_label/' + classid + "/"

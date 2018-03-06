@@ -147,7 +147,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd ..
   python3 prepare_multiChannel_seg_data.py -f ../../data/S3DIS/out_part_rgb/ -c 6
   mv S3DIS_files/* ../../data/S3DIS/out_part_rgb/
-  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_fps_k16
+  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps
   ./test_s3dis.sh -g 0 -x s3dis_x8_2048_fps_k16 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
   cd ../evaluation
   python3 s3dis_upsampling.py
