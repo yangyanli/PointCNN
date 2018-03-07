@@ -92,8 +92,6 @@ def unpickle(npy_file, out_data, out_label, out_trans):
                 block_list = []
 
                 dim = [bbox[1] - bbox[0], bbox[3] - bbox[2], bbox[5] - bbox[4]]
-                max_dim = max(dim)
-
                 # compute split x
                 if dim[0] > max_b:
                     block_num = int(dim[0] / (max_b - overlap))
@@ -210,8 +208,8 @@ def unpickle(npy_file, out_data, out_label, out_trans):
                         for pt in pf_block:
                             f.writelines(str((pt[0] - trans[0])) + " " + str((pt[2] - trans[2])) + " " + str(
                                 (pt[1] - trans[1])) + " " +
-                                         str(float(pt[3]) / 255 - 0.5) + " " + str(
-                                float(pt[4]) / 255 - 0.5) + " " + str(float(pt[5]) / 255 - 0.5) + "\n")
+                                 str(float(pt[3]) / 255 - 0.5) + " " +
+                                 str(float(pt[4]) / 255 - 0.5) + " " + str(float(pt[5]) / 255 - 0.5) + "\n")
                     print("save pts", out_pts, len(pf_block))
 
                     with open(out_seg, "w") as f:
