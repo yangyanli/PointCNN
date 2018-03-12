@@ -20,6 +20,9 @@ See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">PointCNN paper
 
 **We are working actively on Semantic3D dataset, stay tuned.**
 
+## License
+Our code is released under MIT License (see LICENSE file for details).
+
 ## Code Organization
 The core X-Conv and PointCNN architecture are defined in [pointcnn.py](pointcnn.py).
 
