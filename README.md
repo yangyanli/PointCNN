@@ -16,6 +16,8 @@ PointCNN achieved 84.4% accuracy on ModelNet40 classification with only 32 input
 
 See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">PointCNN paper on arXiv</a> for more details.
 
+**We highly welcome issues, rather than emails, for PointCNN related questions.**
+
 **We are working actively on Semantic3D dataset, stay tuned.**
 
 ## Code Organization
