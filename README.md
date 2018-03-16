@@ -189,3 +189,6 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd ../pointcnn_seg
   ./train_val_semantic3d.sh -g 0 -x semantic3d_x8_2048_k16
   ```
+  
+  ## More PointCNN Implementations
+  * <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
