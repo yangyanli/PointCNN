@@ -239,16 +239,16 @@ def curvature_based_sample(nn_pts, k):
     return indices
 
 
-def top_1_accuracy(probs, labels, weights=None,is_partial=None, num=None):
+def top_1_accuracy(probs, labels, weights=None, is_partial=None, num=None):
     if is_partial is not None:
         probs = tf.cond(is_partial, lambda: probs[0:num, ...], lambda: probs)
         labels = tf.cond(is_partial, lambda: labels[0:num, ...], lambda: labels)
 
-    #ignore zero weight class
+    # ignore zero weight class
     if weights is not None:
-        hold_indices = tf.greater(weights,tf.zeros_like(weights))
-        probs = tf.boolean_mask(probs,hold_indices)
-        labels = tf.boolean_mask(labels,hold_indices)
+        hold_indices = tf.greater(weights, tf.zeros_like(weights))
+        probs = tf.boolean_mask(probs, hold_indices)
+        labels = tf.boolean_mask(labels, hold_indices)
 
     probs_2d = tf.reshape(probs, (-1, tf.shape(probs)[-1]))
     labels_1d = tf.reshape(labels, [-1])
@@ -262,7 +262,7 @@ def batch_normalization(data, is_training, name, reuse=None):
     return tf.layers.batch_normalization(data, momentum=0.9, training=is_training,
                                          beta_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                          gamma_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
-                                         reuse=reuse, name=name + '_bn')
+                                         reuse=reuse, name=name)
 
 
 def separable_conv2d(input, output, name, is_training, kernel_size, depth_multiplier=1,
@@ -275,7 +275,7 @@ def separable_conv2d(input, output, name, is_training, kernel_size, depth_multip
                                         depthwise_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                         pointwise_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                         reuse=reuse, name=name, use_bias=not with_bn)
-    return batch_normalization(conv2d, is_training, name, reuse) if with_bn else conv2d
+    return batch_normalization(conv2d, is_training, name + '_bn', reuse) if with_bn else conv2d
 
 
 def conv2d(input, output, name, is_training, kernel_size,
@@ -285,7 +285,7 @@ def conv2d(input, output, name, is_training, kernel_size,
                               kernel_initializer=tf.glorot_uniform_initializer(),
                               kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                               reuse=reuse, name=name, use_bias=not with_bn)
-    return batch_normalization(conv2d, is_training, name, reuse) if with_bn else conv2d
+    return batch_normalization(conv2d, is_training, name + '_bn', reuse) if with_bn else conv2d
 
 
 def dense(input, output, name, is_training, reuse=None, with_bn=True, activation=tf.nn.elu):
@@ -293,4 +293,4 @@ def dense(input, output, name, is_training, reuse=None, with_bn=True, activation
                             kernel_initializer=tf.glorot_uniform_initializer(),
                             kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                             reuse=reuse, name=name, use_bias=not with_bn)
-    return batch_normalization(dense, is_training, name, reuse) if with_bn else dense
+    return batch_normalization(dense, is_training, name + '_bn', reuse) if with_bn else dense

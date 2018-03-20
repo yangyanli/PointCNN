@@ -21,7 +21,7 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
     nn_pts = tf.gather_nd(pts, indices, name=tag + 'nn_pts')  # (N, P, K, 3)
     nn_pts_center = tf.expand_dims(qrs, axis=2, name=tag + 'nn_pts_center')  # (N, P, 1, 3)
     nn_pts_local = tf.subtract(nn_pts, nn_pts_center, name=tag + 'nn_pts_local')  # (N, P, K, 3)
-    nn_pts_local_bn = pf.batch_normalization(nn_pts_local, is_training, name=tag + 'nn_pts_local')
+    nn_pts_local_bn = pf.batch_normalization(nn_pts_local, is_training, name=tag + 'nn_pts_local_bn')
 
     # Prepare features to be transformed
     nn_fts_from_pts_0 = pf.dense(nn_pts_local_bn, C_pts_fts, tag + 'nn_fts_from_pts_0', is_training)
