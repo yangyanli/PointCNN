@@ -274,7 +274,7 @@ def separable_conv2d(input, output, name, is_training, kernel_size, depth_multip
                                         pointwise_initializer=tf.glorot_uniform_initializer(),
                                         depthwise_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                         pointwise_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
-                                        reuse=reuse, name=name)
+                                        reuse=reuse, name=name, use_bias=not with_bn)
     return batch_normalization(conv2d, is_training, name, reuse) if with_bn else conv2d
 
 
@@ -284,7 +284,7 @@ def conv2d(input, output, name, is_training, kernel_size,
                               activation=activation,
                               kernel_initializer=tf.glorot_uniform_initializer(),
                               kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
-                              reuse=reuse, name=name)
+                              reuse=reuse, name=name, use_bias=not with_bn)
     return batch_normalization(conv2d, is_training, name, reuse) if with_bn else conv2d
 
 
@@ -292,5 +292,5 @@ def dense(input, output, name, is_training, reuse=None, with_bn=True, activation
     dense = tf.layers.dense(input, units=output, activation=activation,
                             kernel_initializer=tf.glorot_uniform_initializer(),
                             kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
-                            reuse=reuse, name=name)
+                            reuse=reuse, name=name, use_bias=not with_bn)
     return batch_normalization(dense, is_training, name, reuse) if with_bn else dense
