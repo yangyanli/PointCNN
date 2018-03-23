@@ -278,6 +278,20 @@ def separable_conv2d(input, output, name, is_training, kernel_size, depth_multip
     return batch_normalization(conv2d, is_training, name + '_bn', reuse) if with_bn else conv2d
 
 
+def depthwise_conv2d(input, depth_multiplier, name, is_training, kernel_size,
+                     reuse=None, with_bn=True, activation=tf.nn.elu):
+    conv2d = tf.contrib.layers.separable_conv2d(input, num_outputs=None, kernel_size=kernel_size, padding='VALID',
+                                                activation_fn=activation,
+                                                depth_multiplier=depth_multiplier,
+                                                weights_initializer=tf.glorot_uniform_initializer(),
+                                                weights_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
+                                                biases_initializer=None if with_bn else tf.zeros_initializer(),
+                                                biases_regularizer=None if with_bn else tf.contrib.layers.l2_regularizer(
+                                                    scale=1.0),
+                                                reuse=reuse, scope=name)
+    return batch_normalization(conv2d, is_training, name + '_bn', reuse) if with_bn else conv2d
+
+
 def conv2d(input, output, name, is_training, kernel_size,
            reuse=None, with_bn=True, activation=tf.nn.elu):
     conv2d = tf.layers.conv2d(input, output, kernel_size=kernel_size, strides=(1, 1), padding='VALID',
