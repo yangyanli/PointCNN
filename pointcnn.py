@@ -34,11 +34,11 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
 
     if with_X_transformation:
         ######################## X-transformation #########################
-        X_0 = pf.conv2d(nn_pts_local_bn, K * K, tag + 'X_0', is_training, (1, K), with_bn=False)
+        X_0 = pf.conv2d(nn_pts_local_bn, K * K, tag + 'X_0', is_training, (1, K))
         X_0_KK = tf.reshape(X_0, (N, P, K, K), name=tag + 'X_0_KK')
-        X_1 = pf.depthwise_conv2d(X_0_KK, K, tag + 'X_1', is_training, (1, K), with_bn=False)
+        X_1 = pf.depthwise_conv2d(X_0_KK, K, tag + 'X_1', is_training, (1, K))
         X_1_KK = tf.reshape(X_1, (N, P, K, K), name=tag + 'X_1_KK')
-        X_2 = pf.depthwise_conv2d(X_1_KK, K, tag + 'X_2', is_training, (1, K), with_bn=False, activation=None)
+        X_2 = pf.depthwise_conv2d(X_1_KK, K, tag + 'X_2', is_training, (1, K), activation=None)
         X_2_KK = tf.reshape(X_2, (N, P, K, K), name=tag + 'X_2_KK')
         fts_X = tf.matmul(X_2_KK, nn_fts_input, name=tag + 'fts_X')
         ###################################################################
