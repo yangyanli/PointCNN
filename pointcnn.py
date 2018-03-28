@@ -57,7 +57,7 @@ class PointCNN:
         sorting_method = setting.sorting_method
         N = tf.shape(points)[0]
 
-        if setting.with_fps:
+        if setting.sampling == 'fps':
             from sampling import tf_sampling
 
         self.layer_pts = [points]
@@ -78,10 +78,13 @@ class PointCNN:
             if P == -1:
                 qrs = points
             else:
-                if setting.with_fps:
+                if setting.sampling == 'fps':
                     qrs = tf_sampling.gather_point(pts, tf_sampling.farthest_point_sample(P, pts))  # (N,P,3)
-                else:
+                elif setting.sampling == 'random':
                     qrs = tf.slice(pts, (0, 0, 0), (-1, P, -1), name=tag + 'qrs')  # (N, P, 3)
+                else:
+                    print('Unknown sampling method!')
+                    exit()
             self.layer_pts.append(qrs)
 
             if layer_idx == 0:

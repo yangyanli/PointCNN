@@ -41,7 +41,7 @@ xdconv_params = [(16, 6, 3, 2),
 # C, dropout_rate
 fc_params = [(16 * x, 0.7), (16 * x, 0.7)]
 
-with_fps = False
+sampling = 'fps'
 
 optimizer = 'adam'
 epsilon = 1e-8

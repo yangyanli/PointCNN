@@ -47,8 +47,6 @@ scaling_range_val = [0, [0.01], 0, 'u']
 xconv_params = None
 save_ply_fn = None
 
-with_fps = False
-
 optimizer = 'adam'
 
 data_dim = 6

@@ -50,7 +50,7 @@ xconv_params = [(8, 1, -1, 16 * x),
 # C, dropout_rate
 fc_params = [(64 * x, 0.0), (32 * x, 0.5)]
 
-with_fps = False
+sampling = 'random'
 
 optimizer = 'adam'
 epsilon = 1e-3
