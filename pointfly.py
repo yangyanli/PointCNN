@@ -118,9 +118,9 @@ def batch_distance_matrix_general(A, B):
 
 # return shape is (N, P, K, 2)
 def knn_indices(points, k, sort=True):
-    pointss_shape = tf.shape(points)
-    batch_size = pointss_shape[0]
-    point_num = pointss_shape[1]
+    points_shape = tf.shape(points)
+    batch_size = points_shape[0]
+    point_num = points_shape[1]
 
     D = batch_distance_matrix(points)
     distances, point_indices = tf.nn.top_k(-D, k=k, sorted=sort)
@@ -163,11 +163,11 @@ def sort_points(points, indices, sorting_method):
                            math.pow(100.0, 3 - sorting_method.find('y')),
                            math.pow(100.0, 3 - sorting_method.find('z'))]
         scaling = tf.constant(scaling_factors, shape=(1, 1, 1, 3))
-        sorting_data = tf.reduce_sum(nn_pts_normalized * scaling, axis=-1, keep_dims=False)  # (N, P, K)
+        sorting_data = tf.reduce_sum(nn_pts_normalized * scaling, axis=-1)  # (N, P, K)
     elif sorting_method == 'l2':
         nn_pts_center = tf.reduce_mean(nn_pts, axis=2, keep_dims=True)  # (N, P, 1, 3)
         nn_pts_local = tf.subtract(nn_pts, nn_pts_center)  # (N, P, K, 3)
-        sorting_data = tf.norm(nn_pts_local, axis=-1, keep_dims=False)  # (N, P, K)
+        sorting_data = tf.norm(nn_pts_local, axis=-1)  # (N, P, K)
     else:
         print('Unknown sorting method!')
         exit()
@@ -222,7 +222,7 @@ def compute_curvature(nn_pts):
     nn_pts_demean = nn_pts - nn_pts_mean  # (N, P, K, 3)
     nn_pts_NPK31 = tf.expand_dims(nn_pts_demean, axis=-1)
     covariance_matrix = tf.matmul(nn_pts_NPK31, nn_pts_NPK31, transpose_b=True)  # (N, P, K, 3, 3)
-    covariance_matrix_mean = tf.reduce_mean(covariance_matrix, axis=2, keep_dims=False)  # (N, P, 3, 3)
+    covariance_matrix_mean = tf.reduce_mean(covariance_matrix, axis=2)  # (N, P, 3, 3)
     eigvals = compute_eigenvals(covariance_matrix_mean)  # (N, P, 3)
     curvature = tf.reduce_min(eigvals, axis=-1) / (tf.reduce_sum(eigvals, axis=-1) + 1e-8)
     return curvature
@@ -237,6 +237,30 @@ def curvature_based_sample(nn_pts, k):
     batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1)), (1, k, 1))
     indices = tf.concat([batch_indices, tf.expand_dims(point_indices, axis=2)], axis=2)
     return indices
+
+
+def random_choice_2d(size, prob_matrix):
+    n_row = prob_matrix.shape[0]
+    n_col = prob_matrix.shape[1]
+    choices = np.ones((n_row, size), dtype=np.int32)
+    for idx_row in range(n_row):
+        choices[idx_row] = np.random.choice(n_col, size=size, replace=False, p=prob_matrix[idx_row])
+    return choices
+
+
+def inverse_density_sampling(points, k, sample_num):
+    D = batch_distance_matrix(points)
+    distances, _ = tf.nn.top_k(-D, k=k, sorted=False)
+    distances_avg = tf.abs(tf.reduce_mean(distances, axis=-1))+1e-8
+    prob_matrix = distances_avg / tf.reduce_sum(distances_avg, axis=-1, keep_dims=True)
+    point_indices = tf.py_func(random_choice_2d, [sample_num, prob_matrix], tf.int32)
+    point_indices.set_shape([points.get_shape()[0], sample_num])
+
+    batch_size = tf.shape(points)[0]
+    batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1)), (1, sample_num, 1))
+    indices = tf.concat([batch_indices, tf.expand_dims(point_indices, axis=2)], axis=2)
+
+    return tf.gather_nd(points, indices)
 
 
 def top_1_accuracy(probs, labels, weights=None, is_partial=None, num=None):

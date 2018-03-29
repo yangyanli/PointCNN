@@ -75,11 +75,13 @@ class PointCNN:
             # get k-nearest points
             pts = self.layer_pts[-1]
             fts = self.layer_fts[-1]
-            if P == -1:
-                qrs = points
+            if P == -1 or (layer_idx > 0 and P == xconv_params[layer_idx-1][2]):
+                qrs = self.layer_pts[-1]
             else:
                 if setting.sampling == 'fps':
                     qrs = tf_sampling.gather_point(pts, tf_sampling.farthest_point_sample(P, pts))  # (N,P,3)
+                elif setting.sampling == 'ids':
+                    qrs = pf.inverse_density_sampling(pts, K, P)
                 elif setting.sampling == 'random':
                     qrs = tf.slice(pts, (0, 0, 0), (-1, P, -1), name=tag + 'qrs')  # (N, P, 3)
                 else:
