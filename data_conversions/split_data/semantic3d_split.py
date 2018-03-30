@@ -22,13 +22,13 @@ sample_flag = False
 max_pts = 4096
 
 # out path
-train_data_root = "../../../data/semantic3d/out_part/train_data"
-train_label_root = "../../../data/semantic3d/out_part/train_label"
-train_trans_root = "../../../data/semantic3d/out_part/train_trans"
+train_data_root = "../../../data/semantic3d/out_part/train_data/"
+train_label_root = "../../../data/semantic3d/out_part/train_label/"
+train_trans_root = "../../../data/semantic3d/out_part/train_trans/"
 
-val_data_root = "../../../data/semantic3d/out_part/val_data"
-val_label_root = "../../../data/semantic3d/out_part/val_label"
-val_trans_root = "../../../data/semantic3d/out_part/val_trans"
+val_data_root = "../../../data/semantic3d/out_part/val_data/"
+val_label_root = "../../../data/semantic3d/out_part/val_label/"
+val_trans_root = "../../../data/semantic3d/out_part/val_trans/"
 
 
 def pc_getbbox(pc):
