@@ -251,7 +251,7 @@ def random_choice_2d(size, prob_matrix):
 def inverse_density_sampling(points, k, sample_num):
     D = batch_distance_matrix(points)
     distances, _ = tf.nn.top_k(-D, k=k, sorted=False)
-    distances_avg = tf.abs(tf.reduce_mean(distances, axis=-1))+1e-8
+    distances_avg = tf.abs(tf.reduce_mean(distances, axis=-1)) + 1e-8
     prob_matrix = distances_avg / tf.reduce_sum(distances_avg, axis=-1, keep_dims=True)
     point_indices = tf.py_func(random_choice_2d, [sample_num, prob_matrix], tf.int32)
     point_indices.set_shape([points.get_shape()[0], sample_num])
@@ -283,7 +283,7 @@ def top_1_accuracy(probs, labels, weights=None, is_partial=None, num=None):
 
 
 def batch_normalization(data, is_training, name, reuse=None):
-    return tf.layers.batch_normalization(data, momentum=0.9, training=is_training,
+    return tf.layers.batch_normalization(data, momentum=0.99, training=is_training,
                                          beta_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                          gamma_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                          reuse=reuse, name=name)

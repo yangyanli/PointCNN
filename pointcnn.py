@@ -45,8 +45,8 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
     else:
         fts_X = nn_fts_input
 
-    fts = pf.separable_conv2d(fts_X, C, tag + 'fts', is_training, (1, K), depth_multiplier=depth_multiplier)
-    return tf.squeeze(fts, axis=2, name=tag + 'fts_3d')
+    fts_conv = pf.separable_conv2d(fts_X, C, tag + 'fts_conv', is_training, (1, K), depth_multiplier=depth_multiplier)
+    return tf.squeeze(fts_conv, axis=2, name=tag + 'fts_conv_3d')
 
 
 class PointCNN:
@@ -64,18 +64,25 @@ class PointCNN:
         if features is None:
             self.layer_fts = [features]
         else:
-            C_fts = xconv_params[0][-1] // 2
+            C_fts = xconv_params[0]['C'] // 2
             features_hd = pf.dense(features, C_fts, 'features_hd', is_training)
             self.layer_fts = [features_hd]
 
         for layer_idx, layer_param in enumerate(xconv_params):
             tag = 'xconv_' + str(layer_idx + 1) + '_'
-            K, D, P, C = layer_param
+            K = layer_param['K']
+            D = layer_param['D']
+            P = layer_param['P']
+            C = layer_param['C']
+            links = layer_param['links']
+            if setting.sampling != 'random' and links:
+                print('Error: flexible links are supported only when random sampling is used!')
+                exit()
 
             # get k-nearest points
             pts = self.layer_pts[-1]
             fts = self.layer_fts[-1]
-            if P == -1 or (layer_idx > 0 and P == xconv_params[layer_idx-1][2]):
+            if P == -1 or (layer_idx > 0 and P == xconv_params[layer_idx - 1]['P']):
                 qrs = self.layer_pts[-1]
             else:
                 if setting.sampling == 'fps':
@@ -93,24 +100,34 @@ class PointCNN:
                 C_pts_fts = C // 2 if fts is None else C // 4
                 depth_multiplier = 4
             else:
-                C_prev = xconv_params[layer_idx - 1][-1]
+                C_prev = xconv_params[layer_idx - 1]['C']
                 C_pts_fts = C_prev // 4
                 depth_multiplier = math.ceil(C / C_prev)
             fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
                               depth_multiplier, sorting_method)
-            self.layer_fts.append(fts_xconv)
+            if links:
+                fts_list = [tf.slice(self.layer_fts[link], (0, 0, 0), (-1, P, -1), name=tag + 'fts_list'+str(link))
+                            for link in links if self.layer_fts[link] is not None]
+                fts_list.append(fts_xconv)
+                self.layer_fts.append(tf.concat(fts_list, axis=-1, name=tag + 'fts_list_concat'))
+            else:
+                self.layer_fts.append(fts_xconv)
 
         if task == 'segmentation':
             for layer_idx, layer_param in enumerate(setting.xdconv_params):
                 tag = 'xdconv_' + str(layer_idx + 1) + '_'
-                K, D, pts_layer_idx, qrs_layer_idx = layer_param
+                K = layer_param['K']
+                D = layer_param['D']
+                pts_layer_idx = layer_param['pts_layer_idx']
+                qrs_layer_idx = layer_param['qrs_layer_idx']
 
                 pts = self.layer_pts[pts_layer_idx + 1]
                 fts = self.layer_fts[pts_layer_idx + 1] if layer_idx == 0 else self.layer_fts[-1]
                 qrs = self.layer_pts[qrs_layer_idx + 1]
                 fts_qrs = self.layer_fts[qrs_layer_idx + 1]
-                _, _, P, C = xconv_params[qrs_layer_idx]
-                _, _, _, C_prev = xconv_params[pts_layer_idx]
+                P = xconv_params[qrs_layer_idx]['P']
+                C = xconv_params[qrs_layer_idx]['C']
+                C_prev = xconv_params[pts_layer_idx]['C']
                 C_pts_fts = C_prev // 4
                 depth_multiplier = 1
                 fts_xdconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
@@ -122,9 +139,10 @@ class PointCNN:
 
         self.fc_layers = [self.layer_fts[-1]]
         for layer_idx, layer_param in enumerate(fc_params):
-            channel_num, drop_rate = layer_param
-            fc = pf.dense(self.fc_layers[-1], channel_num, 'fc{:d}'.format(layer_idx), is_training)
-            fc_drop = tf.layers.dropout(fc, drop_rate, training=is_training, name='fc{:d}_drop'.format(layer_idx))
+            C = layer_param['C']
+            dropout_rate = layer_param['dropout_rate']
+            fc = pf.dense(self.fc_layers[-1], C, 'fc{:d}'.format(layer_idx), is_training)
+            fc_drop = tf.layers.dropout(fc, dropout_rate, training=is_training, name='fc{:d}_drop'.format(layer_idx))
             self.fc_layers.append(fc_drop)
 
         logits = pf.dense(self.fc_layers[-1], num_class, 'logits', is_training, with_bn=False, activation=None)

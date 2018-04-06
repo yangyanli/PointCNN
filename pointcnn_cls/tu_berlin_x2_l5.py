@@ -40,15 +40,18 @@ scaling_range_val = [0, [0.01], 0, 'u']
 
 x = 2
 
-# K, D, P, C
-xconv_params = [(8, 1, -1, 16 * x),
-                (12, 2, 256, 32 * x),
-                (16, 2, 128, 64 * x),
-                (16, 3, 128, 128 * x),
-                (16, 5, 128, 128 * x)]
+xconv_param_name = ('K', 'D', 'P', 'C', 'links')
+xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
+                [(8, 1, -1, 16 * x, []),
+                (12, 2, 256, 32 * x, []),
+                (16, 2, 128, 64 * x, []),
+                (16, 3, 128, 128 * x, []),
+                (16, 5, 128, 128 * x, [])]]
 
-# C, dropout_rate
-fc_params = [(128 * x, 0.0), (128 * x, 0.5)]
+fc_param_name = ('C', 'dropout_rate')
+fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
+             [(128 * x, 0.0),
+              (128 * x, 0.5)]]
 
 sampling = 'random'
 

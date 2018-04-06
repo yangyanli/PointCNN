@@ -27,19 +27,23 @@ scaling_range_val = [0, 0, 0, 'u']
 
 x = 8
 
-# K, D, P, C
-xconv_params = [(8, 1, -1, 32 * x),
-                (12, 2, 768, 32 * x),
-                (16, 2, 384, 64 * x),
-                (16, 6, 128, 128 * x)]
+xconv_param_name = ('K', 'D', 'P', 'C', 'links')
+xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
+                [(8, 1, -1, 32 * x, []),
+                 (12, 2, 768, 32 * x, []),
+                 (16, 2, 384, 64 * x, []),
+                 (16, 6, 128, 128 * x, [])]]
 
-# K, D, pts_layer_idx, qrs_layer_idx
-xdconv_params = [(16, 6, 3, 2),
-                 (12, 4, 2, 1),
-                 (8, 4, 1, 0)]
+xdconv_param_name = ('K', 'D', 'pts_layer_idx', 'qrs_layer_idx')
+xdconv_params = [dict(zip(xdconv_param_name, xdconv_param)) for xdconv_param in
+                 [(16, 6, 3, 2),
+                  (12, 4, 2, 1),
+                  (8, 4, 1, 0)]]
 
-# C, dropout_rate
-fc_params = [(32 * x, 0.5), (32 * x, 0.5)]
+fc_param_name = ('C', 'dropout_rate')
+fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
+             [(32 * x, 0.5),
+              (32 * x, 0.5)]]
 
 sampling = 'fps'
 
