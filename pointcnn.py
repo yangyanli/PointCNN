@@ -8,7 +8,7 @@ import tensorflow as tf
 
 
 def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation, depth_multiplier,
-          sorting_method=None):
+          sorting_method=None, relative=True):
     if D == 1:
         _, indices = pf.knn_indices_general(qrs, pts, K, False)
     else:
@@ -19,13 +19,16 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
         indices = pf.sort_points(pts, indices, sorting_method)
 
     nn_pts = tf.gather_nd(pts, indices, name=tag + 'nn_pts')  # (N, P, K, 3)
-    nn_pts_center = tf.expand_dims(qrs, axis=2, name=tag + 'nn_pts_center')  # (N, P, 1, 3)
-    nn_pts_local = tf.subtract(nn_pts, nn_pts_center, name=tag + 'nn_pts_local')  # (N, P, K, 3)
+    if relative:
+        nn_pts_center = tf.expand_dims(qrs, axis=2, name=tag + 'nn_pts_center')  # (N, P, 1, 3)
+        nn_pts_local = tf.subtract(nn_pts, nn_pts_center, name=tag + 'nn_pts_local')  # (N, P, K, 3)
+    else:
+        nn_pts_local = nn_pts
 
     # Prepare features to be transformed
     nn_fts_from_pts_0 = pf.dense(nn_pts_local, C_pts_fts, tag + 'nn_fts_from_pts_0', is_training)
     nn_fts_from_pts = pf.dense(nn_fts_from_pts_0, C_pts_fts, tag + 'nn_fts_from_pt', is_training)
-    if fts is None:\
+    if fts is None:
         nn_fts_input = nn_fts_from_pts
     else:
         nn_fts_from_prev = tf.gather_nd(fts, indices, name=tag + 'nn_fts_from_prev')
@@ -103,15 +106,16 @@ class PointCNN:
                 C_pts_fts = C_prev // 4
                 depth_multiplier = math.ceil(C / C_prev)
             fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
-                              depth_multiplier, sorting_method)
+                              depth_multiplier, sorting_method, layer_idx != len(xconv_params) - 1)
             if links:
                 fts_list = [fts_xconv]
                 for link in links:
                     fts_from_link = self.layer_fts[link]
                     if fts_from_link is not None:
-                        fts_slice = tf.slice(fts_from_link, (0, 0, 0), (-1, P, -1), name=tag + 'fts_slice_'+str(-link))
+                        fts_slice = tf.slice(fts_from_link, (0, 0, 0), (-1, P, -1),
+                                             name=tag + 'fts_slice_' + str(-link))
                         C_forward = math.ceil(fts_slice.get_shape().as_list()[-1] / (-link))
-                        fts_forward = pf.dense(fts_slice, C_forward, tag + 'fts_forward_'+str(-link), is_training)
+                        fts_forward = pf.dense(fts_slice, C_forward, tag + 'fts_forward_' + str(-link), is_training)
                         fts_list.append(fts_forward)
                 self.layer_fts.append(tf.concat(fts_list, axis=-1, name=tag + 'fts_list_concat'))
             else:
