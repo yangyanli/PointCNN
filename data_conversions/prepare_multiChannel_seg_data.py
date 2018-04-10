@@ -74,11 +74,12 @@ def main():
             category_label[category] = idx
 
     batch_size = 2048
-    data = np.zeros((batch_size, max_point_num, args.channel_num))
-    data_num = np.zeros((batch_size), dtype=np.int32)
-    label = np.zeros((batch_size), dtype=np.int32)
-    label_seg = np.zeros((batch_size, max_point_num), dtype=np.int32)
     for data_folder, label_folder in folders:
+        data = np.zeros((batch_size, max_point_num, args.channel_num))
+        data_num = np.zeros((batch_size), dtype=np.int32)
+        label = np.zeros((batch_size), dtype=np.int32)
+        label_seg = np.zeros((batch_size, max_point_num), dtype=np.int32)
+        
         if not os.path.exists(data_folder):
             continue
         data_folder_ply = data_folder + '_ply'
