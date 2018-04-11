@@ -20,7 +20,11 @@ def get_indices(batch_size, sample_num, point_num, random_sample=True):
     for i in range(batch_size):
         pt_num = point_nums[i]
         if random_sample:
-            choices = np.random.choice(pt_num, sample_num, replace=(pt_num < sample_num))
+            if pt_num > sample_num:
+                choices = np.random.choice(pt_num, sample_num, replace=False)
+            else:
+                choices = np.concatenate((np.random.choice(pt_num, pt_num, replace=False),
+                                          np.random.choice(pt_num, sample_num-pt_num, replace=True)))
         else:
             choices = np.arange(sample_num) % pt_num
         choices = np.expand_dims(choices, axis=1)
