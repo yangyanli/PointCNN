@@ -107,16 +107,17 @@ class PointCNN:
                 depth_multiplier = math.ceil(C / C_prev)
             fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
                               depth_multiplier, sorting_method, layer_idx != len(xconv_params) - 1)
-            if links:
-                fts_list = [fts_xconv]
-                for link in links:
-                    fts_from_link = self.layer_fts[link]
-                    if fts_from_link is not None:
-                        fts_slice = tf.slice(fts_from_link, (0, 0, 0), (-1, P, -1),
-                                             name=tag + 'fts_slice_' + str(-link))
-                        C_forward = math.ceil(fts_slice.get_shape().as_list()[-1] / (-link))
-                        fts_forward = pf.dense(fts_slice, C_forward, tag + 'fts_forward_' + str(-link), is_training)
-                        fts_list.append(fts_forward)
+            fts_list = []
+            for link in links:
+                fts_from_link = self.layer_fts[link]
+                if fts_from_link is not None:
+                    fts_slice = tf.slice(fts_from_link, (0, 0, 0), (-1, P, -1),
+                                         name=tag + 'fts_slice_' + str(-link))
+                    C_forward = math.ceil(fts_slice.get_shape().as_list()[-1] / (-link))
+                    fts_forward = pf.dense(fts_slice, C_forward, tag + 'fts_forward_' + str(-link), is_training)
+                    fts_list.append(fts_forward)
+            if fts_list:
+                fts_list.append(fts_xconv)
                 self.layer_fts.append(tf.concat(fts_list, axis=-1, name=tag + 'fts_list_concat'))
             else:
                 self.layer_fts.append(fts_xconv)

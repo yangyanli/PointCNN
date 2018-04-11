@@ -49,7 +49,8 @@ xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
 
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
-             [(64 * x, 0.5)]]
+             [(128 * x, 0.0),
+              (64 * x, 0.5)]]
 
 sampling = 'random'
 
