@@ -154,13 +154,9 @@ class PointCNN:
             fc_drop = tf.layers.dropout(fc, dropout_rate, training=is_training, name='fc{:d}_drop'.format(layer_idx))
             self.fc_layers.append(fc_drop)
 
-        logits = pf.dense(self.fc_layers[-1], num_class, 'logits', is_training, with_bn=False, activation=None)
         if task == 'classification':
-            logits_mean = tf.reduce_mean(logits, axis=1, keep_dims=True, name='logits_mean')
-            self.logits = tf.cond(is_training, lambda: logits, lambda: logits_mean)
-        elif task == 'segmentation':
-            self.logits = logits
-        else:
-            print('Unknown task!')
-            exit()
+            fc_mean = tf.reduce_mean(self.fc_layers[-1], axis=1, keep_dims=True, name='fc_mean')
+            self.fc_layers[-1] = tf.cond(is_training, lambda: self.fc_layers[-1], lambda: fc_mean)
+
+        self.logits = pf.dense(self.fc_layers[-1], num_class, 'logits', is_training, with_bn=False, activation=None)
         self.probs = tf.nn.softmax(self.logits, name='probs')
