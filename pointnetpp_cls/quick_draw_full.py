@@ -32,7 +32,7 @@ BN_DECAY_DECAY_RATE = 0.5
 BN_DECAY_DECAY_STEP = float(decay_steps)
 BN_DECAY_CLIP = 0.99
 
-weight_decay = 1e-4
+weight_decay = 1e-6
 
 jitter = 0.0
 jitter_val = 0.0

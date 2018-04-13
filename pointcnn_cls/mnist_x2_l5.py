@@ -26,7 +26,7 @@ decay_steps = 8000
 decay_rate = 0.6
 learning_rate_min = 0.00001
 
-weight_decay = 1e-4
+weight_decay = 1e-6
 
 jitter = 0.01
 jitter_val = 0.01
@@ -56,7 +56,7 @@ fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
 sampling = 'random'
 
 optimizer = 'adam'
-epsilon = 1e-3
+epsilon = 1e-2
 
 data_dim = 3
 with_X_transformation = True
