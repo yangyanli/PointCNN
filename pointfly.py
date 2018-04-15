@@ -168,7 +168,7 @@ def sort_points(points, indices, sorting_method):
                            math.pow(100.0, 3 - sorting_method.find('z'))]
         scaling = tf.constant(scaling_factors, shape=(1, 1, 1, 3))
         sorting_data = tf.reduce_sum(nn_pts_normalized * scaling, axis=-1)  # (N, P, K)
-        sorting_data[:, :, 0] = 0.0
+        sorting_data = tf.concat([tf.zeros((batch_size, point_num, 1)), sorting_data[:, :, 1:]], axis=-1)
     elif sorting_method == 'l2':
         nn_pts_center = tf.reduce_mean(nn_pts, axis=2, keep_dims=True)  # (N, P, 1, 3)
         nn_pts_local = tf.subtract(nn_pts, nn_pts_center)  # (N, P, K, 3)
