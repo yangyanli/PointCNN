@@ -10,7 +10,7 @@ import tensorflow as tf
 def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation, depth_multiplier,
           sorting_method=None, relative=True):
     if D == 1:
-        _, indices = pf.knn_indices_general(qrs, pts, K, False)
+        _, indices = pf.knn_indices_general(qrs, pts, K, True)
     else:
         _, indices_dilated = pf.knn_indices_general(qrs, pts, K * D, True)
         indices = indices_dilated[:, :, ::D, :]
@@ -88,9 +88,11 @@ class PointCNN:
                 qrs = self.layer_pts[-1]
             else:
                 if setting.sampling == 'fps':
-                    qrs = tf_sampling.gather_point(pts, tf_sampling.farthest_point_sample(P, pts))  # (N,P,3)
+                    indices = tf_sampling.farthest_point_sample(P, pts)
+                    qrs = tf_sampling.gather_point(pts, indices)  # (N,P,3)
                 elif setting.sampling == 'ids':
-                    qrs = pf.inverse_density_sampling(pts, K, P)
+                    indices = pf.inverse_density_sampling(pts, K, P)
+                    qrs = tf.gather_nd(pts, indices)
                 elif setting.sampling == 'random':
                     qrs = tf.slice(pts, (0, 0, 0), (-1, P, -1), name=tag + 'qrs')  # (N, P, 3)
                 else:

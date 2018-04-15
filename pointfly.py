@@ -168,6 +168,7 @@ def sort_points(points, indices, sorting_method):
                            math.pow(100.0, 3 - sorting_method.find('z'))]
         scaling = tf.constant(scaling_factors, shape=(1, 1, 1, 3))
         sorting_data = tf.reduce_sum(nn_pts_normalized * scaling, axis=-1)  # (N, P, K)
+        sorting_data[:, :, 0] = 0.0
     elif sorting_method == 'l2':
         nn_pts_center = tf.reduce_mean(nn_pts, axis=2, keep_dims=True)  # (N, P, 1, 3)
         nn_pts_local = tf.subtract(nn_pts, nn_pts_center)  # (N, P, K, 3)
@@ -263,8 +264,7 @@ def inverse_density_sampling(points, k, sample_num):
     batch_size = tf.shape(points)[0]
     batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1)), (1, sample_num, 1))
     indices = tf.concat([batch_indices, tf.expand_dims(point_indices, axis=2)], axis=2)
-
-    return tf.gather_nd(points, indices)
+    return indices
 
 
 def top_1_accuracy(probs, labels, weights=None, is_partial=None, num=None):
