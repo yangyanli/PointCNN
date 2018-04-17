@@ -8,7 +8,7 @@ import tensorflow as tf
 
 
 def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation, depth_multiplier,
-          sorting_method=None, relative=True):
+          sorting_method=None, with_global=False):
     if D == 1:
         _, indices = pf.knn_indices_general(qrs, pts, K, True)
     else:
@@ -19,15 +19,12 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
         indices = pf.sort_points(pts, indices, sorting_method)
 
     nn_pts = tf.gather_nd(pts, indices, name=tag + 'nn_pts')  # (N, P, K, 3)
-    if relative:
-        nn_pts_center = tf.expand_dims(qrs, axis=2, name=tag + 'nn_pts_center')  # (N, P, 1, 3)
-        nn_pts_local = tf.subtract(nn_pts, nn_pts_center, name=tag + 'nn_pts_local')  # (N, P, K, 3)
-    else:
-        nn_pts_local = nn_pts
+    nn_pts_center = tf.expand_dims(qrs, axis=2, name=tag + 'nn_pts_center')  # (N, P, 1, 3)
+    nn_pts_local = tf.subtract(nn_pts, nn_pts_center, name=tag + 'nn_pts_local')  # (N, P, K, 3)
 
     # Prepare features to be transformed
     nn_fts_from_pts_0 = pf.dense(nn_pts_local, C_pts_fts, tag + 'nn_fts_from_pts_0', is_training)
-    nn_fts_from_pts = pf.dense(nn_fts_from_pts_0, C_pts_fts, tag + 'nn_fts_from_pt', is_training)
+    nn_fts_from_pts = pf.dense(nn_fts_from_pts_0, C_pts_fts, tag + 'nn_fts_from_pts', is_training)
     if fts is None:
         nn_fts_input = nn_fts_from_pts
     else:
@@ -48,7 +45,14 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
         fts_X = nn_fts_input
 
     fts_conv = pf.separable_conv2d(fts_X, C, tag + 'fts_conv', is_training, (1, K), depth_multiplier=depth_multiplier)
-    return tf.squeeze(fts_conv, axis=2, name=tag + 'fts_conv_3d')
+    fts_conv_3d = tf.squeeze(fts_conv, axis=2, name=tag + 'fts_conv_3d')
+
+    if with_global:
+        fts_global_0 = pf.dense(qrs, C // 4, tag + 'fts_global_0', is_training)
+        fts_global = pf.dense(fts_global_0, C // 4, tag + 'fts_global_', is_training)
+        return tf.concat([fts_global, fts_conv_3d], axis=-1, name=tag + 'fts_conv_3d_with_global')
+    else:
+        return fts_conv_3d
 
 
 class PointCNN:
@@ -108,7 +112,7 @@ class PointCNN:
                 C_pts_fts = C_prev // 4
                 depth_multiplier = math.ceil(C / C_prev)
             fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
-                              depth_multiplier, sorting_method, layer_idx != len(xconv_params) - 1)
+                              depth_multiplier, sorting_method, layer_idx == len(xconv_params) - 1)
             fts_list = []
             for link in links:
                 fts_from_link = self.layer_fts[link]
