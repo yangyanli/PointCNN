@@ -24,7 +24,7 @@ def get_indices(batch_size, sample_num, point_num, random_sample=True):
                 choices = np.random.choice(pt_num, sample_num, replace=False)
             else:
                 choices = np.concatenate((np.random.choice(pt_num, pt_num, replace=False),
-                                          np.random.choice(pt_num, sample_num-pt_num, replace=True)))
+                                          np.random.choice(pt_num, sample_num - pt_num, replace=True)))
         else:
             choices = np.arange(sample_num) % pt_num
         choices = np.expand_dims(choices, axis=1)
@@ -298,8 +298,8 @@ def separable_conv2d(input, output, name, is_training, kernel_size, depth_multip
     conv2d = tf.layers.separable_conv2d(input, output, kernel_size=kernel_size, strides=(1, 1), padding='VALID',
                                         activation=activation,
                                         depth_multiplier=depth_multiplier,
-                                        depthwise_initializer=tf.glorot_uniform_initializer(),
-                                        pointwise_initializer=tf.glorot_uniform_initializer(),
+                                        depthwise_initializer=tf.glorot_normal_initializer(),
+                                        pointwise_initializer=tf.glorot_normal_initializer(),
                                         depthwise_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                         pointwise_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                         reuse=reuse, name=name, use_bias=not with_bn)
@@ -311,7 +311,7 @@ def depthwise_conv2d(input, depth_multiplier, name, is_training, kernel_size,
     conv2d = tf.contrib.layers.separable_conv2d(input, num_outputs=None, kernel_size=kernel_size, padding='VALID',
                                                 activation_fn=activation,
                                                 depth_multiplier=depth_multiplier,
-                                                weights_initializer=tf.glorot_uniform_initializer(),
+                                                weights_initializer=tf.glorot_normal_initializer(),
                                                 weights_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                                                 biases_initializer=None if with_bn else tf.zeros_initializer(),
                                                 biases_regularizer=None if with_bn else tf.contrib.layers.l2_regularizer(
@@ -324,7 +324,7 @@ def conv2d(input, output, name, is_training, kernel_size,
            reuse=None, with_bn=True, activation=tf.nn.elu):
     conv2d = tf.layers.conv2d(input, output, kernel_size=kernel_size, strides=(1, 1), padding='VALID',
                               activation=activation,
-                              kernel_initializer=tf.glorot_uniform_initializer(),
+                              kernel_initializer=tf.glorot_normal_initializer(),
                               kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                               reuse=reuse, name=name, use_bias=not with_bn)
     return batch_normalization(conv2d, is_training, name + '_bn', reuse) if with_bn else conv2d
@@ -332,7 +332,7 @@ def conv2d(input, output, name, is_training, kernel_size,
 
 def dense(input, output, name, is_training, reuse=None, with_bn=True, activation=tf.nn.elu):
     dense = tf.layers.dense(input, units=output, activation=activation,
-                            kernel_initializer=tf.glorot_uniform_initializer(),
+                            kernel_initializer=tf.glorot_normal_initializer(),
                             kernel_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),
                             reuse=reuse, name=name, use_bias=not with_bn)
     return batch_normalization(dense, is_training, name + '_bn', reuse) if with_bn else dense
