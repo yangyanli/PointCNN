@@ -138,16 +138,19 @@ def seg2color(seg):
     return color
 
 ###########need to modify paths when you run this code#############
-pts_file_root = "../../../data/S3DIS/out_part_rgb/train_data/Area6_data/01"
+##use origin pointcloud
+pts_file_root = "../../../data/S3DIS/out_part_rgb/train_pts/Area6_data/01"
 seg_file_root = "../../../data/S3DIS/pred/Area6_data/"
 out_seg_root = "../../../data/S3DIS/upsampling/upsample_pred_A6/seg/"
 out_ply_root = "../../../data/S3DIS/upsample_pred_A6/ply/"
+
+is_save_ply = True
 
 if not os.path.exists(out_seg_root):
     print(out_seg_root, "Not Exists! Create", out_seg_root)
     os.makedirs(out_seg_root)
 
-if not os.path.exists(out_ply_root):
+if not os.path.exists(out_ply_root) and is_save_ply:
     print(out_ply_root, "Not Exists! Create", out_ply_root)
     os.makedirs(out_ply_root)
 
@@ -163,11 +166,9 @@ for pred_seg in seg_file_list:
     pts_files.append(pts_file_root + "/" + pred_seg.replace(".seg", ".pts"))
 
     out_segs.append(out_seg_root + "/" + pred_seg)
-    # out_plys.append(out_ply_root + "/" + pred_seg.replace(".seg",".ply"))
 
-# out_ply = "./show.ply"
-# out_ply_dsample = "./show_dsample.ply"
-# out_ply_usample = "./show_usample.ply"
+    if is_save_ply:
+        out_plys.append(out_ply_root + "/" + pred_seg.replace(".seg",".ply"))
 
 for k, seg_f in enumerate(seg_files):
 
@@ -197,12 +198,17 @@ for k, seg_f in enumerate(seg_files):
     print("Up sample...")
     pts_upsample, seg_upsample = voxel_upsample(seg, ori_pts, 0.05)
 
-    print("Save upsampled seg:", out_segs[k])
+    print(len(ori_pts),len(pts_upsample))
+
+    #print("Save upsampled seg:", out_segs[k])
     with open(out_segs[k], 'w') as seg_wf:
 
         for s in seg_upsample:
             seg_wf.writelines(str(s) + "\n")
 
-    # print "Save ply:",out_plys[k]
-    # save_ply(pts_upsample,seg2color(seg_upsample),out_plys[k])
+    if is_save_ply:
+
+        print("Save ply:",out_plys[k])
+        save_ply(pts_upsample,seg2color(seg_upsample),out_plys[k])
+
 

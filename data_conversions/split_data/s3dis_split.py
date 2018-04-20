@@ -16,10 +16,12 @@ overlap = 0.75
 block_min_pnum = 600
 
 # out path
+train_ori_pts_root = "../../../data/S3DIS/out_part_rgb/train_pts/"
 train_data_root = "../../../data/S3DIS/out_part_rgb/train_data_downsampling/"
 train_label_root = "../../../data/S3DIS/out_part_rgb/train_label_downsampling/"
 train_trans_root = "../../../data/S3DIS/out_part_rgb/train_trans_downsampling/"
 
+test_ori_pts_root = "../../../data/S3DIS/out_part_rgb/test_pts/"
 test_data_root = "../../../data/S3DIS/out_part_rgb/test_data_downsampling/"
 test_label_root = "../../../data/S3DIS/out_part_rgb/test_label_downsampling/"
 test_trans_root = "../../../data/S3DIS/out_part_rgb/test_trans_downsampling/"
@@ -39,11 +41,13 @@ def pc_getbbox(pc):
 
     return boundary
 
-
-def unpickle(npy_file, out_data, out_label, out_trans):
+def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
     path_Areas = os.listdir(npy_file)
     for Area in path_Areas:
         # check the path
+        if not os.path.exists(out_ori_pts + "Area" + Area[-1] + "_data/01"):
+            print(out_ori_pts, "Not Exists! Create", out_ori_pts)
+            os.makedirs(out_ori_pts + "Area" + Area[-1] + "_data/01")
         if not os.path.exists(out_data + "Area" + Area[-1] + "_data/01"):
             print(out_data, "Not Exists! Create", out_data)
             os.makedirs(out_data + "Area" + Area[-1] + "_data/01")
@@ -64,19 +68,6 @@ def unpickle(npy_file, out_data, out_label, out_trans):
             pf = np.load(path_data)
             sf = np.load(path_seg).astype(int)
             sf = sf.reshape(int(sf.shape[0]))
-
-            # downsampling
-            coordmax = np.max(pf, axis=0)
-            coordmin = np.min(pf, axis=0)
-            nvox = np.ceil((coordmax - coordmin) / res)
-            vidx = np.ceil((pf - coordmin) / res)
-            vidx = vidx[:, 0] + vidx[:, 1] * nvox[0] + vidx[:, 2] * nvox[0] * nvox[1]
-
-            uvidx, vpidx = np.unique(vidx, return_index=True)
-            # compute voxel label
-            pf = np.array(pf)[vpidx].tolist()
-            sf = np.array(sf)[vpidx].tolist()
-            #########
 
             pts_num = len(pf)
             seg_num = len(sf)
@@ -187,11 +178,13 @@ def unpickle(npy_file, out_data, out_label, out_trans):
                         continue
 
                     save_id = Room + "%03d" % save_list[0]
+                    ori_pts = out_ori_pts + "Area" + Area[-1] + "_data/01/" + save_id + ".pts"
                     out_pts = out_data + "Area" + Area[-1] + "_data/01/" + save_id + ".pts"
                     out_seg = out_label + "Area" + Area[-1] + "_label/01/" + save_id + ".seg"
 
                     pf_block = []
                     sf_block = []
+                    pf_ori = []
 
                     for save_k in save_list:
 
@@ -204,12 +197,35 @@ def unpickle(npy_file, out_data, out_label, out_trans):
                              (bbox_block[3] - bbox_block[2]) / 2 + bbox_block[2], bbox_block[4]]
                     trans_list.append([save_id, trans])
 
+                    # save ori block pts
+                    with open(ori_pts, "w") as f:
+
+                        for pt in pf_block:
+                            pf_ori.append([pt[0] - trans[0], pt[2] - trans[2], pt[1] - trans[1]])
+                            f.writelines(
+                                str(pf_ori[-1][0]) + " " + str(pf_ori[-1][1]) + " " + str(pf_ori[-1][2]) + "\n")
+
+                    # downsampling
+                    coordmax = np.max(pf_ori, axis=0)
+                    coordmin = np.min(pf_ori, axis=0)
+                    nvox = np.ceil((coordmax - coordmin) / res)
+                    vidx = np.ceil((pf_ori - coordmin) / res)
+                    vidx = vidx[:, 0] + vidx[:, 1] * nvox[0] + vidx[:, 2] * nvox[0] * nvox[1]
+
+                    uvidx, vpidx = np.unique(vidx, return_index=True)
+                    # compute voxel label
+                    pf_block = np.array(pf_block)[vpidx].tolist()
+                    sf_block = np.array(sf_block)[vpidx].tolist()
+                    #########
+
                     with open(out_pts, "w") as f:
                         for pt in pf_block:
-                            f.writelines(str((pt[0] - trans[0])) + " " + str((pt[2] - trans[2])) + " " + str(
-                                (pt[1] - trans[1])) + " " +
-                                 str(float(pt[3]) / 255 - 0.5) + " " +
-                                 str(float(pt[4]) / 255 - 0.5) + " " + str(float(pt[5]) / 255 - 0.5) + "\n")
+                            f.writelines(str((pt[0] - trans[0])) + " " +
+                                         str((pt[2] - trans[2])) + " " +
+                                         str((pt[1] - trans[1])) + " " +
+                                         str(float(pt[3]) / 255 - 0.5) + " " +
+                                         str(float(pt[4]) / 255 - 0.5) + " " +
+                                         str(float(pt[5]) / 255 - 0.5) + "\n")
                     print("save pts", out_pts, len(pf_block))
 
                     with open(out_seg, "w") as f:
@@ -232,6 +248,6 @@ def unpickle(npy_file, out_data, out_label, out_trans):
 
 if __name__ == '__main__':
     # read and split train
-    unpickle(BASE_DIR, train_data_root, train_label_root, train_trans_root)
+    unpickle(BASE_DIR, train_ori_pts_root, train_data_root, train_label_root, train_trans_root)
     # read and split test
-    unpickle(BASE_DIR, test_data_root, test_label_root, test_trans_root)
+    unpickle(BASE_DIR, test_ori_pts_root, test_data_root, test_label_root, test_trans_root)
