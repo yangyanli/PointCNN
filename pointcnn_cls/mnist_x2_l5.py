@@ -58,7 +58,9 @@ sampling = 'random'
 optimizer = 'adam'
 epsilon = 1e-2
 
-data_dim = 3
+data_dim = 4
+use_extra_features = True
+with_normal_feature = False
 with_X_transformation = True
 sorting_method = None
 
