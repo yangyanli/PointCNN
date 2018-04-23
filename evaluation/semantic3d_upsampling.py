@@ -196,7 +196,7 @@ for k, seg_f in enumerate(seg_files):
             seg.append(line_s)
 
     print("Up sample...")
-    pts_upsample, seg_upsample = voxel_upsample(seg, ori_pts, 0.05)
+    pts_upsample, seg_upsample = voxel_upsample(seg, ori_pts, 0.10)
 
     print(len(ori_pts),len(pts_upsample))
 
