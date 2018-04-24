@@ -16,12 +16,14 @@ overlap = 0.75
 block_min_pnum = 600
 
 # out path
-train_ori_pts_root = "../../../data/S3DIS/out_part_rgb/train_pts/"
+train_ori_pts_root = "../../../data/S3DIS/out_part_rgb/train_ori_pts/"
+train_ori_seg_root = "../../../data/S3DIS/out_part_rgb/train_ori_seg/"
 train_data_root = "../../../data/S3DIS/out_part_rgb/train_data_downsampling/"
 train_label_root = "../../../data/S3DIS/out_part_rgb/train_label_downsampling/"
 train_trans_root = "../../../data/S3DIS/out_part_rgb/train_trans_downsampling/"
 
-test_ori_pts_root = "../../../data/S3DIS/out_part_rgb/test_pts/"
+test_ori_pts_root = "../../../data/S3DIS/out_part_rgb/test_ori_pts/"
+test_ori_seg_root = "../../../data/S3DIS/out_part_rgb/test_ori_seg/"
 test_data_root = "../../../data/S3DIS/out_part_rgb/test_data_downsampling/"
 test_label_root = "../../../data/S3DIS/out_part_rgb/test_label_downsampling/"
 test_trans_root = "../../../data/S3DIS/out_part_rgb/test_trans_downsampling/"
@@ -41,12 +43,15 @@ def pc_getbbox(pc):
 
     return boundary
 
-def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
+def unpickle(npy_file, out_ori_pts, out_ori_seg,  out_data, out_label, out_trans):
     path_Areas = os.listdir(npy_file)
     for Area in path_Areas:
         # check the path
         if not os.path.exists(out_ori_pts + "Area" + Area[-1] + "_data/01"):
             print(out_ori_pts, "Not Exists! Create", out_ori_pts)
+            os.makedirs(out_ori_pts + "Area" + Area[-1] + "_data/01")
+        if not os.path.exists(out_ori_seg + "Area" + Area[-1] + "_data/01"):
+            print(out_ori_seg, "Not Exists! Create", out_ori_seg)
             os.makedirs(out_ori_pts + "Area" + Area[-1] + "_data/01")
         if not os.path.exists(out_data + "Area" + Area[-1] + "_data/01"):
             print(out_data, "Not Exists! Create", out_data)
@@ -133,9 +138,7 @@ def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
 
                     if block_nm[2] == 0:
                         block_nm.append(-1)
-
                     else:
-
                         # compute the nearest block to merge
                         block_i = block_nm[0]
                         dis_list = []
@@ -179,6 +182,7 @@ def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
 
                     save_id = Room + "%03d" % save_list[0]
                     ori_pts = out_ori_pts + "Area" + Area[-1] + "_data/01/" + save_id + ".pts"
+                    ori_seg = out_ori_seg + "Area" + Area[-1] + "_data/01/" + save_id + ".seg"
                     out_pts = out_data + "Area" + Area[-1] + "_data/01/" + save_id + ".pts"
                     out_seg = out_label + "Area" + Area[-1] + "_label/01/" + save_id + ".seg"
 
@@ -202,8 +206,15 @@ def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
 
                         for pt in pf_block:
                             pf_ori.append([pt[0] - trans[0], pt[2] - trans[2], pt[1] - trans[1]])
-                            f.writelines(
-                                str(pf_ori[-1][0]) + " " + str(pf_ori[-1][1]) + " " + str(pf_ori[-1][2]) + "\n")
+                            f.writelines(str(pf_ori[-1][0]) + " " +
+                                         str(pf_ori[-1][1]) + " " +
+                                         str(pf_ori[-1][2]) + "\n")
+
+                    # save ori block seg
+                    with open(ori_seg, "w") as f:
+                        for s in sf_block:
+                            f.writelines(str(s) + "\n")
+                    print("save ori seg", out_ori_seg)
 
                     # downsampling
                     coordmax = np.max(pf_ori, axis=0)
@@ -226,12 +237,12 @@ def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
                                          str(float(pt[3]) / 255 - 0.5) + " " +
                                          str(float(pt[4]) / 255 - 0.5) + " " +
                                          str(float(pt[5]) / 255 - 0.5) + "\n")
-                    print("save pts", out_pts, len(pf_block))
+                    print("save pts", out_pts)
 
                     with open(out_seg, "w") as f:
                         for s in sf_block:
                             f.writelines(str(s) + "\n")
-                    print("save seg", out_seg, len(sf_block))
+                    print("save seg", out_seg)
 
                 # save trans
                 with open(out_trs, "w") as f_w:
@@ -248,6 +259,6 @@ def unpickle(npy_file, out_ori_pts, out_data, out_label, out_trans):
 
 if __name__ == '__main__':
     # read and split train
-    unpickle(BASE_DIR, train_ori_pts_root, train_data_root, train_label_root, train_trans_root)
+    unpickle(BASE_DIR, train_ori_pts_root, train_ori_seg_root, train_data_root, train_label_root, train_trans_root)
     # read and split test
-    unpickle(BASE_DIR, test_ori_pts_root, test_data_root, test_label_root, test_trans_root)
+    unpickle(BASE_DIR, test_ori_pts_root, test_ori_seg_root, test_data_root, test_label_root, test_trans_root)

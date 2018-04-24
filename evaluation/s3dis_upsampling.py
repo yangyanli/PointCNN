@@ -139,7 +139,7 @@ def seg2color(seg):
 
 ###########need to modify paths when you run this code#############
 ##use origin pointcloud
-pts_file_root = "../../../data/S3DIS/out_part/train_pts/Area6_data/01/"
+pts_file_root = "../../../data/S3DIS/out_part/train_ori_pts/Area6_data/01/"
 seg_file_root = "../../../data/S3DIS/pred/Area6_label/01/"
 out_seg_root = "../../../data/S3DIS/upsampling/upsample_pred_A6/seg/"
 out_ply_root = "../../../data/S3DIS/upsampling/upsample_pred_A6/ply/"

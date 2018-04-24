@@ -139,7 +139,7 @@ def seg2color(seg):
 
 ###########need to modify paths when you run this code#############
 ##use origin pointcloud
-pts_file_root = "../../../data/semantic3d/out_part/train_pts/bildstein/"##dir path of origin point
+pts_file_root = "../../../data/semantic3d/out_part/train_ori_pts/bildstein/"##dir path of origin point
 seg_file_root = "../../../data/semantic3d/pred/bildstein/"##dir path of pred seg files
 out_seg_root = "../../../data/semantic3d/upsampling/upsample_pred_bildstein/seg/"
 out_ply_root = "../../../data/semantic3d/upsampling/upsample_pred_bildstein/ply/"

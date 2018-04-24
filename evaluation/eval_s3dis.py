@@ -9,14 +9,10 @@ import os
 
 BASE_DIR = os.path.dirname(__file__)
 
-# pred_data_label_filenames = [line.rstrip() for line in open('all_pred_data_label_filelist.txt')]
-# gt_label_filenames = [f.rstrip('_pred\.txt') + '_gt.txt' for f in pred_data_label_filenames]
-
-
 gt_label_filenames = []
 pred_label_filenames = []
 
-GT_DIR = os.path.join(BASE_DIR,"test","train_label")
+GT_DIR = os.path.join(BASE_DIR,"out_part/train_ori_seg/Area6_data/01/")
 gt_Areas = os.listdir(GT_DIR)
 for gt_area in gt_Areas:
     gt_Rooms = os.listdir(os.path.join(GT_DIR,gt_area,"01"))
@@ -26,7 +22,7 @@ for gt_area in gt_Areas:
 
 num_room = len(gt_label_filenames)
 
-PRED_DIR = os.path.join(BASE_DIR,"smc_upsampling")
+PRED_DIR = os.path.join(BASE_DIR,"upsampling/upsample_pred_A6/seg/")
 
 pred_Areas = os.listdir(PRED_DIR)
 for pred_area in pred_Areas:
@@ -35,7 +31,6 @@ for pred_area in pred_Areas:
         path_pred_label = os.path.join(PRED_DIR,pred_area,"seg",pred_room)
         pred_label_filenames.append(path_pred_label)
 
-#pred_data_label_filenames = gt_label_filenames
 assert(num_room == len(pred_label_filenames))
 
 gt_classes = [0 for _ in range(13)]
@@ -54,15 +49,13 @@ for i in range(num_room):
         positive_classes[pred_l] += 1
         true_positive_classes[gt_l] += int(gt_l==pred_l)
 
-
 print(gt_classes)
 print(positive_classes)
 print(true_positive_classes)
 
-
 print('Overall accuracy: {0}'.format(sum(true_positive_classes)/float(sum(positive_classes))))
 
-print 'IoU:'
+print('IoU:')
 iou_list = []
 for i in range(13):
     iou = true_positive_classes[i]/float(gt_classes[i]+positive_classes[i]-true_positive_classes[i]) 
