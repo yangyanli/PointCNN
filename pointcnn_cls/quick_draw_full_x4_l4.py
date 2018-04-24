@@ -52,21 +52,19 @@ order = 'rxyz'
 scaling_range = [0, [0.01], 0, 'u']
 scaling_range_val = [0, [0.01], 0, 'u']
 
-x = 2
+x = 4
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
-                [(8, 2, -1, 16 * x, []),
-                (12, 2, 192, 64 * x, []),
-                (16, 1, 64, 128 * x, []),
-                (16, 2, 64, 128 * x, []),
-                (16, 3, 64, 128 * x, []),
-                (16, 4, 64, num_class * x)]]
+                [(8, 1, -1, 16 * x, []),
+                 (12, 2, 256, 32 * x, []),
+                 (16, 3, 128, 64 * x, []),
+                 (16, 6, 128, num_class * 2, [])]]
 
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
-             [(num_class * x, 0.0),
-              (num_class * x, 0.5)]]
+             [(num_class * 2, 0.0),
+              (num_class * 2, 0.5)]]
 
 sampling = 'random'
 
@@ -77,6 +75,5 @@ sorting_method = None
 data_dim = 6
 use_extra_features = False
 with_X_transformation = True
-
 
 keep_remainder = True
