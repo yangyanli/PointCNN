@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-num_parts = 8
+num_class = 8
 
 sample_num = 2048
 
@@ -9,7 +9,7 @@ batch_size = 24
 num_epochs = 1024
 
 label_weights = []
-for c in range(num_parts):
+for c in range(num_class):
     label_weights.append(1.0)
 
 learning_rate_base = 0.01

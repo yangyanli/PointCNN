@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import math
 
-num_parts = 21
+num_class = 21
 
 sample_num = 2048
 
@@ -11,7 +11,7 @@ num_epochs = 1024
 
 label_weights = []
 
-for c in range(num_parts):
+for c in range(num_class):
 
     if c == 0:
 

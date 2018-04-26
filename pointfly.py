@@ -267,25 +267,6 @@ def inverse_density_sampling(points, k, sample_num):
     return indices
 
 
-def top_1_accuracy(probs, labels, weights=None, is_partial=None, num=None):
-    if is_partial is not None:
-        probs = tf.cond(is_partial, lambda: probs[0:num, ...], lambda: probs)
-        labels = tf.cond(is_partial, lambda: labels[0:num, ...], lambda: labels)
-
-    # ignore zero weight class
-    if weights is not None:
-        hold_indices = tf.greater(weights, tf.zeros_like(weights))
-        probs = tf.boolean_mask(probs, hold_indices)
-        labels = tf.boolean_mask(labels, hold_indices)
-
-    probs_2d = tf.reshape(probs, (-1, tf.shape(probs)[-1]))
-    labels_1d = tf.reshape(labels, [-1])
-    in_top_1 = tf.nn.in_top_k(probs_2d, labels_1d, 1)
-    top_1_acc = tf.reduce_mean(tf.cast(in_top_1, tf.float32), name='top_1_accuracy')
-
-    return top_1_acc
-
-
 def batch_normalization(data, is_training, name, reuse=None):
     return tf.layers.batch_normalization(data, momentum=0.99, training=is_training,
                                          beta_regularizer=tf.contrib.layers.l2_regularizer(scale=1.0),

@@ -36,7 +36,7 @@ def main():
     setting = importlib.import_module(os.path.basename(args.setting))
 
     sample_num = setting.sample_num
-    num_parts = setting.num_parts
+    num_class = setting.num_class
 
     output_folder = args.data_folder + '_pred_' + str(args.repeat_num)
     category_list = [(category, int(label_num)) for (category, label_num) in
@@ -86,7 +86,7 @@ def main():
         points = pts_fts
     points_sampled = tf.gather_nd(points, indices=indices, name='points_sampled')
 
-    net = model.Net(points_sampled, features_sampled, num_parts, is_training, setting)
+    net = model.Net(points_sampled, features_sampled, num_class, is_training, setting)
     probs_op = net.probs
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)

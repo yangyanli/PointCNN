@@ -18,6 +18,7 @@ import pointfly as pf
 import tensorflow as tf
 from datetime import datetime
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--filelist', '-t', help='Path to training set ground truth (.txt)', required=True)
@@ -48,7 +49,7 @@ def main():
     batch_size = setting.batch_size
     sample_num = setting.sample_num
     step_val = 500
-    num_parts = setting.num_parts
+    num_class = setting.num_class
     label_weights_list = setting.label_weights
     scaling_range = setting.scaling_range
     scaling_range_val = setting.scaling_range_val
@@ -81,7 +82,7 @@ def main():
     is_training = tf.placeholder(tf.bool, name='is_training')
 
     pts_fts = tf.placeholder(tf.float32, shape=(None, point_num, setting.data_dim), name='pts_fts')
-    labels_seg = tf.placeholder(tf.int32, shape=(None, point_num), name='labels_seg')
+    labels_seg = tf.placeholder(tf.int64, shape=(None, point_num), name='labels_seg')
     labels_weights = tf.placeholder(tf.float32, shape=(None, point_num), name='labels_weights')
 
     ######################################################################
@@ -97,7 +98,7 @@ def main():
                 elif setting.data_dim == 6:
                     features_augmented = pf.augment(features_sampled, rotations)
                 else:
-                    normals, rest = tf.split(features_sampled, [3, setting.data_dim-6])
+                    normals, rest = tf.split(features_sampled, [3, setting.data_dim - 6])
                     normals_augmented = pf.augment(normals, rotations)
                     features_augmented = tf.concat([normals_augmented, rest], axis=-1)
             else:
@@ -110,19 +111,29 @@ def main():
     labels_sampled = tf.gather_nd(labels_seg, indices=indices, name='labels_sampled')
     labels_weights_sampled = tf.gather_nd(labels_weights, indices=indices, name='labels_weight_sampled')
 
-    net = model.Net(points_augmented, features_augmented, num_parts, is_training, setting)
-    logits, probs = net.logits, net.probs
+    net = model.Net(points_augmented, features_augmented, num_class, is_training, setting)
+    logits = net.logits
 
-    loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_sampled, logits=logits, weights=labels_weights_sampled)
+    loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_sampled, logits=logits,
+                                                     weights=labels_weights_sampled)
+    loss_mean_op, _ = tf.metrics.mean(loss_op, updates_collections=tf.GraphKeys.UPDATE_OPS)
+    t_1_acc_op, _ = tf.metrics.precision_at_k(labels_sampled, logits, 1, updates_collections=tf.GraphKeys.UPDATE_OPS)
 
-    t_1_acc_op = pf.top_1_accuracy(probs, labels_sampled)
-    _ = tf.summary.scalar('loss/train_seg', tensor=loss_op, collections=['train'])
+    _ = tf.summary.scalar('loss/train_seg', tensor=loss_mean_op, collections=['train'])
     _ = tf.summary.scalar('t_1_acc/train_seg', tensor=t_1_acc_op, collections=['train'])
 
-    loss_val_avg = tf.placeholder(tf.float32)
-    t_1_acc_val_avg = tf.placeholder(tf.float32)
-    _ = tf.summary.scalar('loss/val_seg', tensor=loss_val_avg, collections=['val'])
-    _ = tf.summary.scalar('t_1_acc/val_seg', tensor=t_1_acc_val_avg, collections=['val'])
+    probs = tf.nn.softmax(logits, name='probs')
+    _, predictions = tf.nn.top_k(probs, name='predictions')
+    with tf.name_scope('val_metrics'):
+        loss_val_op, loss_val_update_op = tf.metrics.mean(loss_op)
+        t_1_acc_val_op, t_1_acc_val_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1)
+        t_1_per_class_acc_val_op, t_1_per_class_acc_val_update_op = \
+            tf.metrics.mean_per_class_accuracy(labels_sampled, predictions, setting.num_class)
+    reset_val_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
+                                                     if var.name.split('/')[0] == 'val_metrics'])
+    _ = tf.summary.scalar('loss/val_seg', tensor=loss_val_op, collections=['val'])
+    _ = tf.summary.scalar('t_1_acc/val_seg', tensor=t_1_acc_val_op, collections=['val'])
+    _ = tf.summary.scalar('t_1_per_class_acc/val_seg', tensor=t_1_per_class_acc_val_op, collections=['val'])
 
     lr_exp_op = tf.train.exponential_decay(setting.learning_rate_base, global_step, setting.decay_steps,
                                            setting.decay_rate, staircase=True)
@@ -168,16 +179,15 @@ def main():
             saver.restore(sess, args.load_ckpt)
             print('{}-Checkpoint loaded from {}!'.format(datetime.now(), args.load_ckpt))
 
-        for batch_idx in range(batch_num):
-            if (batch_idx != 0 and batch_idx % step_val == 0) or batch_idx == batch_num - 1:
+        for batch_idx_train in range(batch_num):
+            if (batch_idx_train != 0 and batch_idx_train % step_val == 0) or batch_idx_train == batch_num - 1:
                 ######################################################################
                 # Validation
                 filename_ckpt = os.path.join(folder_ckpt, 'iter')
                 saver.save(sess, filename_ckpt, global_step=global_step)
                 print('{}-Checkpoint saved to {}!'.format(datetime.now(), filename_ckpt))
 
-                losses = []
-                t_1_accs = []
+                sess.run(reset_val_metrics_op)
                 for batch_val_idx in range(math.ceil(num_val / batch_size)):
                     start_idx = batch_size * batch_val_idx
                     end_idx = min(start_idx + batch_size, num_val)
@@ -188,40 +198,29 @@ def main():
                     weights_batch = np.array(label_weights_list)[label_val[start_idx:end_idx, ...]]
 
                     xforms_np, rotations_np = pf.get_xforms(batch_size_val, scaling_range=scaling_range_val)
-                    _, loss_val, t_1_acc_val = \
-                        sess.run([update_ops, loss_op, t_1_acc_op],
-                                 feed_dict={
-                                     pts_fts: points_batch,
-                                     indices: pf.get_indices(batch_size_val, sample_num, points_num_batch),
-                                     xforms: xforms_np,
-                                     rotations: rotations_np,
-                                     jitter_range: np.array([jitter_val]),
-                                     labels_seg: labels_batch,
-                                     labels_weights: weights_batch,
-                                     is_training: False,
-                                 })
-                    losses.append(loss_val * batch_size_val)
-                    t_1_accs.append(t_1_acc_val * batch_size_val)
-                    print('{}-[Val  ]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
-                          .format(datetime.now(), batch_val_idx, loss_val, t_1_acc_val))
-                    sys.stdout.flush()
+                    sess.run([loss_val_update_op, t_1_acc_val_update_op, t_1_per_class_acc_val_update_op],
+                             feed_dict={
+                                 pts_fts: points_batch,
+                                 indices: pf.get_indices(batch_size_val, sample_num, points_num_batch),
+                                 xforms: xforms_np,
+                                 rotations: rotations_np,
+                                 jitter_range: np.array([jitter_val]),
+                                 labels_seg: labels_batch,
+                                 labels_weights: weights_batch,
+                                 is_training: False,
+                             })
 
-                loss_avg = sum(losses) / num_val
-                t_1_acc_avg = sum(t_1_accs) / num_val
-                summaries_val = sess.run(summaries_val_op,
-                                         feed_dict={
-                                             loss_val_avg: loss_avg,
-                                             t_1_acc_val_avg: t_1_acc_avg,
-                                         })
-                summary_writer.add_summary(summaries_val, batch_idx)
-                print('{}-[Val  ]-Average:      Loss: {:.4f}  T-1 Acc: {:.4f}'
-                      .format(datetime.now(), loss_avg, t_1_acc_avg))
+                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val = sess.run(
+                    [loss_val_op, t_1_acc_val_op, t_1_per_class_acc_val_op, summaries_val_op])
+                summary_writer.add_summary(summaries_val, batch_idx_train)
+                print('{}-[Val  ]-Average:      Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
+                      .format(datetime.now(), loss_val, t_1_acc_val, t_1_per_class_acc_val))
                 sys.stdout.flush()
                 ######################################################################
 
             ######################################################################
             # Training
-            start_idx = (batch_size * batch_idx) % num_train
+            start_idx = (batch_size * batch_idx_train) % num_train
             end_idx = min(start_idx + batch_size, num_train)
             batch_size_train = end_idx - start_idx
             points_batch = data_train[start_idx:end_idx, ...]
@@ -238,21 +237,21 @@ def main():
             offset = min(offset, sample_num // 4)
             sample_num_train = sample_num + offset
             xforms_np, rotations_np = pf.get_xforms(batch_size_train, scaling_range=scaling_range)
-            _, loss, t_1_acc, summaries = \
-                sess.run([train_op, loss_op, t_1_acc_op, summaries_op],
-                         feed_dict={
-                             pts_fts: points_batch,
-                             indices: pf.get_indices(batch_size_train, sample_num_train, points_num_batch),
-                             xforms: xforms_np,
-                             rotations: rotations_np,
-                             jitter_range: np.array([jitter]),
-                             labels_seg: labels_batch,
-                             labels_weights: weights_batch,
-                             is_training: True,
-                         })
-            summary_writer.add_summary(summaries, batch_idx)
+            _, loss, t_1_acc, summaries = sess.run([train_op, loss_mean_op, t_1_acc_op, summaries_op],
+                                                   feed_dict={
+                                                       pts_fts: points_batch,
+                                                       indices: pf.get_indices(batch_size_train, sample_num_train,
+                                                                               points_num_batch),
+                                                       xforms: xforms_np,
+                                                       rotations: rotations_np,
+                                                       jitter_range: np.array([jitter]),
+                                                       labels_seg: labels_batch,
+                                                       labels_weights: weights_batch,
+                                                       is_training: True,
+                                                   })
+            summary_writer.add_summary(summaries, batch_idx_train)
             print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
-                  .format(datetime.now(), batch_idx, loss, t_1_acc))
+                  .format(datetime.now(), batch_idx_train, loss, t_1_acc))
             sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))

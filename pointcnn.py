@@ -165,4 +165,3 @@ class PointCNN:
             self.fc_layers[-1] = tf.cond(is_training, lambda: self.fc_layers[-1], lambda: fc_mean)
 
         self.logits = pf.dense(self.fc_layers[-1], num_class, 'logits', is_training, with_bn=False, activation=None)
-        self.probs = tf.nn.softmax(self.logits, name='probs')
