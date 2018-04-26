@@ -4,9 +4,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
+import os,sys
 import math
 import numpy as np
+import bisect
+from multiprocessing import Pool
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), '../../../data/S3DIS/prepare_label_rgb')
 
@@ -42,6 +44,48 @@ def pc_getbbox(pc):
     boundary = [min(x), max(x), min(y), max(y), min(z), max(z)]
 
     return boundary
+
+def process_block(pf, block_list):
+    block_indices = {}
+    x_min_list = np.unique(block_list[:,0])
+    y_min_list = np.unique(block_list[:,1])
+
+    len_x_min_list = x_min_list.shape[0]
+    len_y_min_list = y_min_list.shape[0]
+
+    len_pf = len(pf)
+    count = 0
+
+    for i in range(len(block_list)):
+        block_indices[i] = []
+
+    for i,p in enumerate(pf):
+        x_pos = bisect.bisect_right(x_min_list,p[0])
+        y_pos = bisect.bisect_right(y_min_list,p[1])
+        k = int((x_pos-1)*len_y_min_list + (y_pos-1))
+
+        if x_pos > 1 and x_pos < len_x_min_list and y_pos > 1 and y_pos < len_y_min_list:
+            block_indices[k].append(i)
+            block_indices[k-1].append(i)
+            block_indices[k-len_y_min_list].append(i)
+            block_indices[k-len_y_min_list-1].append(i)
+        elif x_pos > 1 and x_pos < len_x_min_list and (y_pos == 1 or y_pos == len_y_min_list):
+            block_indices[k].append(i)
+            block_indices[k-len_y_min_list].append(i)
+        elif y_pos > 1 and y_pos < len_y_min_list and (x_pos == 1 or x_pos == len_x_min_list):
+            block_indices[k].append(i)
+            block_indices[k-1].append(i)
+        else:
+            block_indices[k].append(i)
+
+        if int(100*i/len_pf) - count == 1:
+            sys.stdout.write("[%s>%s] %s\r" % ('-'*int(100*i/len_pf), ' '*int(100-int(100*i/len_pf)),str(int(100*i/len_pf))+"%"))
+            sys.stdout.flush()
+            count+=1
+    print("")
+    print("#### ",os.getpid()," END ####")
+
+    return block_indices
 
 def unpickle(npy_file, out_ori_pts, out_ori_seg,  out_data, out_label, out_trans):
     path_Areas = os.listdir(npy_file)
@@ -109,25 +153,16 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg,  out_data, out_label, out_trans
                         block_list.append([px[0] + bbox[0], py[0] + bbox[2], px[1] + bbox[0], py[1] + bbox[2]])
 
                 # split to blocks
-                block_indices = {}
-                block_len = []
+                len_block_list = len(block_list)
+                print("need to process :", len_block_list, " blocks")
+
+                np_block_list = np.array(block_list)
+
+                block_indices = process_block(pf[:, :3], np_block_list)
                 block_needmerge = []
-
-                for k, block in enumerate(block_list):
-
-                    print("Process block", k, block)
-
-                    block_indices[k] = []
-
-                    for i, p in enumerate(pf):
-
-                        if p[0] >= block[0] and p[0] <= block[2] and p[1] >= block[1] and p[1] <= block[3]:
-                            block_indices[k].append(i)
-
-                    block_len.append(len(block_indices[k]))
-
-                    if block_len[-1] < block_min_pnum:
-                        block_needmerge.append([k, block, block_len[-1]])
+                for i in range(len_block_list):
+                    if len(block_indices[i]) < block_min_pnum:
+                        block_needmerge.append([i, block_list[i], len(block_indices[i])])
 
                 print("reblock")
 
@@ -206,9 +241,9 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg,  out_data, out_label, out_trans
 
                         for pt in pf_block:
                             pf_ori.append([pt[0] - trans[0], pt[2] - trans[2], pt[1] - trans[1]])
-                            f.writelines(str(pf_ori[-1][0]) + " " +
-                                         str(pf_ori[-1][1]) + " " +
-                                         str(pf_ori[-1][2]) + "\n")
+                            f.writelines(str(float(pf_ori[-1][0])) + " " +
+                                         str(float(pf_ori[-1][1])) + " " +
+                                         str(float(pf_ori[-1][2])) + "\n")
 
                     # save ori block seg
                     with open(ori_seg, "w") as f:
@@ -231,9 +266,9 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg,  out_data, out_label, out_trans
 
                     with open(out_pts, "w") as f:
                         for pt in pf_block:
-                            f.writelines(str((pt[0] - trans[0])) + " " +
-                                         str((pt[2] - trans[2])) + " " +
-                                         str((pt[1] - trans[1])) + " " +
+                            f.writelines(str(float((pt[0] - trans[0]))) + " " +
+                                         str(float((pt[2] - trans[2]))) + " " +
+                                         str(float((pt[1] - trans[1]))) + " " +
                                          str(float(pt[3]) / 255 - 0.5) + " " +
                                          str(float(pt[4]) / 255 - 0.5) + " " +
                                          str(float(pt[5]) / 255 - 0.5) + "\n")

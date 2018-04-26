@@ -4,9 +4,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
+import os,sys
 import math
 import numpy as np
+import bisect
 from multiprocessing import Pool
 
 BASE_DIR = "../../../data/semantic3d"
@@ -49,24 +50,48 @@ def pc_getbbox(pc):
 
     return boundary
 
-def process_block(pf, block_list, start):
-    block_indices = {}
-    block_needmerge = []
-    print("\n#### pid: ",os.getpid()," START ####")
-    for k,block in enumerate(block_list):
-        block_indices[k+start] = []
-        for i, p in enumerate(pf):
-            if p[0] >= block[0] and p[0] <= block[2] and p[1] >= block[1] and p[1] <= block[3]:
-                block_indices[k+start].append(i)
-        block_len = len(block_indices[k+start])
-        if block_len < block_min_pnum:
-            block_needmerge.append([k+start,block,block_len])
-        print("[%s>%s] %s" % ('-'*k, ' '*(len(block_list)-k),str(int(100*k/len(block_list)))+'%'))
 
+def process_block(pf, block_list):
+    block_indices = {}
+    x_min_list = np.unique(block_list[:,0])
+    y_min_list = np.unique(block_list[:,1])
+
+    len_x_min_list = x_min_list.shape[0]
+    len_y_min_list = y_min_list.shape[0]
+
+    len_pf = len(pf)
+    count = 0
+
+    for i in range(len(block_list)):
+        block_indices[i] = []
+
+    for i,p in enumerate(pf):
+        x_pos = bisect.bisect_right(x_min_list,p[0])
+        y_pos = bisect.bisect_right(y_min_list,p[1])
+        k = int((x_pos-1)*len_y_min_list + (y_pos-1))
+
+        if x_pos > 1 and x_pos < len_x_min_list and y_pos > 1 and y_pos < len_y_min_list:
+            block_indices[k].append(i)
+            block_indices[k-1].append(i)
+            block_indices[k-len_y_min_list].append(i)
+            block_indices[k-len_y_min_list-1].append(i)
+        elif x_pos > 1 and x_pos < len_x_min_list and (y_pos == 1 or y_pos == len_y_min_list):
+            block_indices[k].append(i)
+            block_indices[k-len_y_min_list].append(i)
+        elif y_pos > 1 and y_pos < len_y_min_list and (x_pos == 1 or x_pos == len_x_min_list):
+            block_indices[k].append(i)
+            block_indices[k-1].append(i)
+        else:
+            block_indices[k].append(i)
+
+        if int(100*i/len_pf) - count == 1:
+            sys.stdout.write("[%s>%s] %s\r" % ('-'*int(100*i/len_pf), ' '*int(100-int(100*i/len_pf)),str(int(100*i/len_pf))+"%"))
+            sys.stdout.flush()
+            count+=1
     print("")
     print("#### ",os.getpid()," END ####")
 
-    return block_indices,block_needmerge
+    return block_indices
 
 
 def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans):
@@ -79,6 +104,8 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
             continue
 
     for category in txt_file:
+        # if txt_file.index(category) < 3:
+        #     continue
 
         print(category[:-4])
         if not os.path.exists(out_ori_pts + category.split("_", 1)[0]):
@@ -153,21 +180,24 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
             block_list = []
 
             dim = [bbox[1] - bbox[0], bbox[3] - bbox[2], bbox[5] - bbox[4]]
+            print("dim is:",dim)
             # compute split x
             if dim[0] > max_b:
                 block_num = int(dim[0] / (max_b - overlap))
-                for c in xrange(block_num):
+                for c in range(block_num):
                     split_x.append([c * (max_b - overlap), c * (max_b - overlap) + max_b])
             else:
                 split_x.append([0, dim[0]])
+            print("split_x num:",len(split_x))
 
             # compute split y
             if dim[1] > max_b:
                 block_num = int(dim[1] / (max_b - overlap))
-                for c in xrange(block_num):
+                for c in range(block_num):
                     split_y.append([c * (max_b - overlap), c * (max_b - overlap) + max_b])
             else:
                 split_y.append([0, dim[1]])
+            print("split_y num:",len(split_y))
 
             for px in split_x:
                 for py in split_y:
@@ -175,35 +205,15 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
 
             # split to blocks
             len_block_list = len(block_list)
-
             print("need to process :",len_block_list," blocks")
 
-            processes_num = 50
-            result = []
-            mp = Pool()
-            for i in range(processes_num):
-                indices = i*int(len_block_list/processes_num)
-                print("indices:",indices)
-                if i != processes_num - 1:
-                    temp = mp.apply_async(process_block, args=(pf,block_list[indices:indices+int(len_block_list/processes_num)],indices,))
-                else:
-                    temp = mp.apply_async(process_block, args=(pf,block_list[indices:],indices,))
-                result.append(temp)
+            np_block_list = np.array(block_list)
 
-            print("Waiting for all subprocesses done...")
-            mp.close()
-            mp.join()
-            print("All subprocesses done")
-            results= [r.get() for r in result]
-
+            block_indices = process_block(pf[:,:3],np_block_list)
             block_needmerge = []
-            block_indices = {}
-            for i in range(processes_num):
-                temp_block_indices = results[i][0]
-                temp_block_needmerge = results[i][1]
-                block_indices.update(temp_block_indices)
-                for j in range(len(temp_block_needmerge)):
-                    block_needmerge.append(temp_block_needmerge[j])
+            for i in range(len_block_list):
+                if len(block_indices[i]) < block_min_pnum:
+                    block_needmerge.append([i,block_list[i],len(block_indices[i])])
 
             print("reblock")
 
@@ -214,6 +224,7 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
 
                 if block_nm[2] == 0:
                     block_nm.append(-1)
+
                 else:
                     # compute the nearest block to merge
                     block_i = block_nm[0]
@@ -280,9 +291,9 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
                 with open(ori_pts, "w") as f:
                     for pt in pf_block:
                         pf_ori.append([pt[0] - trans[0], pt[2] - trans[2], pt[1] - trans[1]])
-                        f.writelines(str(pf_ori[-1][0]) + " " +
-                                     str(pf_ori[-1][1]) + " " +
-                                     str(pf_ori[-1][2]) + "\n")
+                        f.writelines(str(float(pf_ori[-1][0])) + " " +
+                                     str(float(pf_ori[-1][1])) + " " +
+                                     str(float(pf_ori[-1][2])) + "\n")
 
                 # save ori block seg
                 with open(ori_seg, "w") as f:
@@ -305,9 +316,9 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
 
                 with open(out_pts, "w") as f:
                     for pt in pf_block:
-                        f.writelines(str((pt[0]-trans[0])) + " " +
-                                     str((pt[2]-trans[2])) + " " +
-                                     str((pt[1]-trans[1])) + " " +
+                        f.writelines(str(float((pt[0]-trans[0]))) + " " +
+                                     str(float((pt[2]-trans[2]))) + " " +
+                                     str(float((pt[1]-trans[1]))) + " " +
                                      str(float(pt[3]) / 255 - 0.5) + " " +
                                      str(float(pt[4]) / 255 - 0.5) + " " +
                                      str(float(pt[5]) / 255 - 0.5) + "\n")
@@ -317,6 +328,7 @@ def unpickle(npy_file, out_ori_pts, out_ori_seg, out_data, out_label, out_trans)
                     for s in sf_block:
                         f.writelines(str(s) + "\n")
                 print("save seg", out_seg)
+
 
             # save trans
             with open(out_trs, "w") as f_w:
