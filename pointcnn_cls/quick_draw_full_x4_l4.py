@@ -11,12 +11,18 @@ sys.path.append(os.path.join(root_folder, 'data_conversions'))
 import quick_draw_utils
 
 
+def load_fn(folder_npz, _):
+    return quick_draw_utils.load_fn(folder_npz, 1.0)
+
+
+balance_fn = None
+
+
 def map_fn(stoke, label, point_num=512):
     return quick_draw_utils.map_fn(stoke, label, point_num)
 
 
-def load_fn(folder_npz, _):
-    return quick_draw_utils.load_fn(folder_npz, 1.0)
+keep_remainder = True
 
 
 def save_ply_fn(data_sample, folder):
@@ -75,5 +81,3 @@ sorting_method = None
 data_dim = 6
 use_extra_features = False
 with_X_transformation = True
-
-keep_remainder = True

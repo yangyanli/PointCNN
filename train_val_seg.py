@@ -71,6 +71,8 @@ def main():
     print('{}-{:d}/{:d} training/validation samples.'.format(datetime.now(), num_train, num_val))
     batch_num = (num_train * num_epochs + batch_size - 1) // batch_size
     print('{}-{:d} training batches.'.format(datetime.now(), batch_num))
+    batch_num_val = math.ceil(num_val / batch_size)
+    print('{}-{:d} testing batches per test.'.format(datetime.now(), batch_num_val))
 
     ######################################################################
     # Placeholders
@@ -113,17 +115,20 @@ def main():
 
     net = model.Net(points_augmented, features_augmented, num_class, is_training, setting)
     logits = net.logits
+    probs = tf.nn.softmax(logits, name='probs')
+    _, predictions = tf.nn.top_k(probs, name='predictions')
 
     loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_sampled, logits=logits,
                                                      weights=labels_weights_sampled)
-    loss_mean_op, _ = tf.metrics.mean(loss_op, updates_collections=tf.GraphKeys.UPDATE_OPS)
-    t_1_acc_op, _ = tf.metrics.precision_at_k(labels_sampled, logits, 1, updates_collections=tf.GraphKeys.UPDATE_OPS)
-
+    loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
+    t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1)
+    t_1_per_class_acc_op, t_1_per_class_acc_update_op = tf.metrics.mean_per_class_accuracy(labels_sampled,
+                                                                                           predictions,
+                                                                                           setting.num_class)
     _ = tf.summary.scalar('loss/train_seg', tensor=loss_mean_op, collections=['train'])
     _ = tf.summary.scalar('t_1_acc/train_seg', tensor=t_1_acc_op, collections=['train'])
+    _ = tf.summary.scalar('t_1_per_class_acc/train', tensor=t_1_per_class_acc_op, collections=['train'])
 
-    probs = tf.nn.softmax(logits, name='probs')
-    _, predictions = tf.nn.top_k(probs, name='predictions')
     with tf.name_scope('val_metrics'):
         loss_val_op, loss_val_update_op = tf.metrics.mean(loss_op)
         t_1_acc_val_op, t_1_acc_val_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1)
@@ -189,7 +194,7 @@ def main():
                 print('{}-Checkpoint saved to {}!'.format(datetime.now(), filename_ckpt))
 
                 sess.run(reset_val_metrics_op)
-                for batch_val_idx in range(math.ceil(num_val / batch_size)):
+                for batch_val_idx in range(batch_num_val):
                     start_idx = batch_size * batch_val_idx
                     end_idx = min(start_idx + batch_size, num_val)
                     batch_size_val = end_idx - start_idx
@@ -238,23 +243,26 @@ def main():
             offset = min(offset, sample_num // 4)
             sample_num_train = sample_num + offset
             xforms_np, rotations_np = pf.get_xforms(batch_size_train, scaling_range=scaling_range)
-            _, loss, t_1_acc, summaries = sess.run([train_op, loss_mean_op, t_1_acc_op, summaries_op],
-                                                   feed_dict={
-                                                       pts_fts: points_batch,
-                                                       indices: pf.get_indices(batch_size_train, sample_num_train,
-                                                                               points_num_batch),
-                                                       xforms: xforms_np,
-                                                       rotations: rotations_np,
-                                                       jitter_range: np.array([jitter]),
-                                                       labels_seg: labels_batch,
-                                                       labels_weights: weights_batch,
-                                                       is_training: True,
-                                                   })
-            if batch_idx_train > 0:
-                summary_writer.add_summary(summaries, batch_idx_train)
-                print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
-                      .format(datetime.now(), batch_idx_train, loss, t_1_acc))
-                sys.stdout.flush()
+            sess.run([train_op, loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
+                     feed_dict={
+                         pts_fts: points_batch,
+                         indices: pf.get_indices(batch_size_train, sample_num_train,
+                                                 points_num_batch),
+                         xforms: xforms_np,
+                         rotations: rotations_np,
+                         jitter_range: np.array([jitter]),
+                         labels_seg: labels_batch,
+                         labels_weights: weights_batch,
+                         is_training: True,
+                     })
+            loss, t_1_acc, t_1_per_class_acc, summaries = sess.run([loss_mean_op,
+                                                                    t_1_acc_op,
+                                                                    t_1_per_class_acc_op,
+                                                                    summaries_op])
+            summary_writer.add_summary(summaries, batch_idx_train)
+            print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
+                  .format(datetime.now(), batch_idx_train, loss, t_1_acc, t_1_per_class_acc))
+            sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
 

@@ -8,7 +8,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import data_utils
 
 load_fn = data_utils.load_cls_train_val
+balance_fn = None
 map_fn = None
+keep_remainder = True
 save_ply_fn = None
 
 num_class = 40
@@ -62,4 +64,3 @@ use_extra_features = False
 with_X_transformation = True
 sorting_method = 'cyxz'
 
-keep_remainder = True

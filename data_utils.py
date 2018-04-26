@@ -114,7 +114,7 @@ def load_cls(filelist):
             points.append(np.concatenate([data['data'][...], data['data'][...]], axis=-1).astype(np.float32))
         else:
             points.append(data['data'][...].astype(np.float32))
-        labels.append(np.squeeze(data['label'][:]).astype(np.int32))
+        labels.append(np.squeeze(data['label'][:]).astype(np.int64))
     return (np.concatenate(points, axis=0),
             np.concatenate(labels, axis=0))
 
@@ -136,10 +136,22 @@ def load_seg(filelist):
         filename = os.path.basename(line.rstrip())
         data = h5py.File(os.path.join(folder, filename))
         points.append(data['data'][...].astype(np.float32))
-        labels.append(data['label'][...].astype(np.int32))
+        labels.append(data['label'][...].astype(np.int64))
         point_nums.append(data['data_num'][...].astype(np.int32))
-        labels_seg.append(data['label_seg'][...].astype(np.int32))
+        labels_seg.append(data['label_seg'][...].astype(np.int64))
     return (np.concatenate(points, axis=0),
             np.concatenate(labels, axis=0),
             np.concatenate(point_nums, axis=0),
             np.concatenate(labels_seg, axis=0))
+
+
+def balance_classes(labels):
+    _, inverse, counts = np.unique(labels, return_inverse=True, return_counts=True)
+    counts_max = np.amax(counts)
+    repeat_num_avg_unique = counts_max / counts
+    repeat_num_avg = repeat_num_avg_unique[inverse]
+    repeat_num_floor = np.floor(repeat_num_avg)
+    repeat_num_probs = repeat_num_avg - repeat_num_floor
+    repeat_num = repeat_num_floor + (np.random.rand(repeat_num_probs.shape[0]) < repeat_num_probs)
+
+    return repeat_num.astype(np.int64)
