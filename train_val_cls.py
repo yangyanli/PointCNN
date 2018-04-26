@@ -220,7 +220,7 @@ def main():
         for batch_idx_train in range(batch_num):
             ######################################################################
             # Validation
-            if (batch_idx_train != 0 and batch_idx_train % step_val == 0) \
+            if (batch_idx_train % step_val == 0 and (batch_idx_train != 0 or args.load_ckpt is not None)) \
                     or batch_idx_train == batch_num - 1:
                 sess.run(iterator_val.initializer, feed_dict={
                     data_val_placeholder: data_val,
@@ -283,10 +283,11 @@ def main():
                                                        jitter_range: np.array([jitter]),
                                                        is_training: True,
                                                    })
-            summary_writer.add_summary(summaries, batch_idx_train)
-            print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
-                  .format(datetime.now(), batch_idx_train, loss, t_1_acc))
-            sys.stdout.flush()
+            if batch_idx_train > 0:
+                summary_writer.add_summary(summaries, batch_idx_train)
+                print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
+                      .format(datetime.now(), batch_idx_train, loss, t_1_acc))
+                sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
 

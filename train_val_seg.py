@@ -180,7 +180,8 @@ def main():
             print('{}-Checkpoint loaded from {}!'.format(datetime.now(), args.load_ckpt))
 
         for batch_idx_train in range(batch_num):
-            if (batch_idx_train != 0 and batch_idx_train % step_val == 0) or batch_idx_train == batch_num - 1:
+            if (batch_idx_train % step_val == 0 and (batch_idx_train != 0 or args.load_ckpt is not None)) \
+                    or batch_idx_train == batch_num - 1:
                 ######################################################################
                 # Validation
                 filename_ckpt = os.path.join(folder_ckpt, 'iter')
@@ -249,10 +250,11 @@ def main():
                                                        labels_weights: weights_batch,
                                                        is_training: True,
                                                    })
-            summary_writer.add_summary(summaries, batch_idx_train)
-            print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
-                  .format(datetime.now(), batch_idx_train, loss, t_1_acc))
-            sys.stdout.flush()
+            if batch_idx_train > 0:
+                summary_writer.add_summary(summaries, batch_idx_train)
+                print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}'
+                      .format(datetime.now(), batch_idx_train, loss, t_1_acc))
+                sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
 
