@@ -35,6 +35,8 @@ xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                  (16, 2, 384, 64 * x, []),
                  (16, 6, 128, 128 * x, [])]]
 
+with_global = True
+
 xdconv_param_name = ('K', 'D', 'pts_layer_idx', 'qrs_layer_idx')
 xdconv_params = [dict(zip(xdconv_param_name, xdconv_param)) for xdconv_param in
                  [(16, 6, 3, 2),

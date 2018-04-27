@@ -49,6 +49,8 @@ xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                 (16, 2, 128, 64 * x, []),
                 (16, 3, 128, num_class * 2, [])]]
 
+with_global = True
+
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
              [(num_class * 2, 0.0),

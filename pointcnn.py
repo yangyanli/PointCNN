@@ -111,8 +111,9 @@ class PointCNN:
                 C_prev = xconv_params[layer_idx - 1]['C']
                 C_pts_fts = C_prev // 4
                 depth_multiplier = math.ceil(C / C_prev)
+            with_global = (setting.with_global and layer_idx == len(xconv_params) - 1)
             fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
-                              depth_multiplier, sorting_method, layer_idx == len(xconv_params) - 1)
+                              depth_multiplier, sorting_method, with_global)
             fts_list = []
             for link in links:
                 fts_from_link = self.layer_fts[link]
