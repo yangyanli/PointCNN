@@ -148,7 +148,7 @@ def load_seg(filelist):
 def balance_classes(labels):
     _, inverse, counts = np.unique(labels, return_inverse=True, return_counts=True)
     counts_max = np.amax(counts)
-    repeat_num_avg_unique = counts_max / counts
+    repeat_num_avg_unique = np.sqrt(counts_max / counts)
     repeat_num_avg = repeat_num_avg_unique[inverse]
     repeat_num_floor = np.floor(repeat_num_avg)
     repeat_num_probs = repeat_num_avg - repeat_num_floor
