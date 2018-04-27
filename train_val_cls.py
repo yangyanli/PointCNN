@@ -156,25 +156,23 @@ def main():
     labels_2d = tf.expand_dims(labels, axis=-1, name='labels_2d')
     labels_tile = tf.tile(labels_2d, (1, tf.shape(logits)[1]), name='labels_tile')
     loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_tile, logits=logits)
-    loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
-    t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_tile, logits, 1)
-    t_1_per_class_acc_op, t_1_per_class_acc_update_op = tf.metrics.mean_per_class_accuracy(labels_tile,
-                                                                                           predictions,
-                                                                                           setting.num_class)
+
+    with tf.name_scope('metrics'):
+        loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
+        t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_tile, logits, 1)
+        t_1_per_class_acc_op, t_1_per_class_acc_update_op = tf.metrics.mean_per_class_accuracy(labels_tile,
+                                                                                               predictions,
+                                                                                               setting.num_class)
+    reset_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
+                                                     if var.name.split('/')[0] == 'metrics'])
+
     _ = tf.summary.scalar('loss/train', tensor=loss_mean_op, collections=['train'])
     _ = tf.summary.scalar('t_1_acc/train', tensor=t_1_acc_op, collections=['train'])
     _ = tf.summary.scalar('t_1_per_class_acc/train', tensor=t_1_per_class_acc_op, collections=['train'])
 
-    with tf.name_scope('val_metrics'):
-        loss_val_op, loss_val_update_op = tf.metrics.mean(loss_op)
-        t_1_acc_val_op, t_1_acc_val_update_op = tf.metrics.precision_at_k(labels_tile, logits, 1)
-        t_1_per_class_acc_val_op, t_1_per_class_acc_val_update_op = \
-            tf.metrics.mean_per_class_accuracy(labels_tile, predictions, setting.num_class)
-    reset_val_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
-                                                     if var.name.split('/')[0] == 'val_metrics'])
-    _ = tf.summary.scalar('loss/val', tensor=loss_val_op, collections=['val'])
-    _ = tf.summary.scalar('t_1_acc/val', tensor=t_1_acc_val_op, collections=['val'])
-    _ = tf.summary.scalar('t_1_per_class_acc/val', tensor=t_1_per_class_acc_val_op, collections=['val'])
+    _ = tf.summary.scalar('loss/val', tensor=loss_mean_op, collections=['val'])
+    _ = tf.summary.scalar('t_1_acc/val', tensor=t_1_acc_op, collections=['val'])
+    _ = tf.summary.scalar('t_1_per_class_acc/val', tensor=t_1_per_class_acc_op, collections=['val'])
 
     lr_exp_op = tf.train.exponential_decay(setting.learning_rate_base, global_step, setting.decay_steps,
                                            setting.decay_rate, staircase=True)
@@ -241,7 +239,7 @@ def main():
                 saver.save(sess, filename_ckpt, global_step=global_step)
                 print('{}-Checkpoint saved to {}!'.format(datetime.now(), filename_ckpt))
 
-                sess.run(reset_val_metrics_op)
+                sess.run(reset_metrics_op)
                 for batch_idx_val in range(batch_num_val):
                     if not setting.keep_remainder \
                             or num_val % batch_size == 0 \
@@ -252,7 +250,7 @@ def main():
                     xforms_np, rotations_np = pf.get_xforms(batch_size_val,
                                                             rotation_range=rotation_range_val,
                                                             order=setting.order)
-                    sess.run([loss_val_update_op, t_1_acc_val_update_op, t_1_per_class_acc_val_update_op],
+                    sess.run([loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                              feed_dict={
                                  handle: handle_val,
                                  indices: pf.get_indices(batch_size_val, sample_num, point_num),
@@ -263,7 +261,7 @@ def main():
                              })
 
                 loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val = sess.run(
-                    [loss_val_op, t_1_acc_val_op, t_1_per_class_acc_val_op, summaries_val_op])
+                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op])
                 summary_writer.add_summary(summaries_val, batch_idx_train)
                 print('{}-[Val  ]-Average:      Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
                       .format(datetime.now(), loss_val, t_1_acc_val, t_1_per_class_acc_val))
@@ -285,6 +283,7 @@ def main():
             xforms_np, rotations_np = pf.get_xforms(batch_size_train, rotation_range=rotation_range,
                                                     order=setting.order)
 
+            sess.run(reset_metrics_op)
             sess.run([train_op, loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                      feed_dict={
                          handle: handle_train,
@@ -294,14 +293,15 @@ def main():
                          jitter_range: np.array([jitter]),
                          is_training: True,
                      })
-            loss, t_1_acc, t_1_per_class_acc, summaries = sess.run([loss_mean_op,
-                                                                    t_1_acc_op,
-                                                                    t_1_per_class_acc_op,
-                                                                    summaries_op])
-            summary_writer.add_summary(summaries, batch_idx_train)
-            print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
-                  .format(datetime.now(), batch_idx_train, loss, t_1_acc, t_1_per_class_acc))
-            sys.stdout.flush()
+            if batch_idx_train % 10 == 0:
+                loss, t_1_acc, t_1_per_class_acc, summaries = sess.run([loss_mean_op,
+                                                                        t_1_acc_op,
+                                                                        t_1_per_class_acc_op,
+                                                                        summaries_op])
+                summary_writer.add_summary(summaries, batch_idx_train)
+                print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
+                      .format(datetime.now(), batch_idx_train, loss, t_1_acc, t_1_per_class_acc))
+                sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
 
