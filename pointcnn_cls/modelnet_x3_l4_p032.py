@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import data_utils
 
 load_fn = data_utils.load_cls_train_val
-balance_fn = None
+balance_fn = data_utils.balance_classes
 map_fn = None
 keep_remainder = True
 save_ply_fn = None
@@ -17,9 +17,9 @@ num_class = 40
 
 sample_num = 32
 
-batch_size = 200
+batch_size = 128
 
-num_epochs = 2048
+num_epochs = 1024
 
 step_val = 500
 

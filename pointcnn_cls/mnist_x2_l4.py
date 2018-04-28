@@ -19,7 +19,7 @@ sample_num = 160
 
 batch_size = 256
 
-num_epochs = 2048
+num_epochs = 1024
 
 step_val = 500
 
