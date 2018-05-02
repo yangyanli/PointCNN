@@ -49,7 +49,6 @@ def main():
     batch_size = setting.batch_size
     sample_num = setting.sample_num
     step_val = setting.step_val
-    num_class = setting.num_class
     rotation_range = setting.rotation_range
     rotation_range_val = setting.rotation_range_val
     jitter = setting.jitter
@@ -135,22 +134,31 @@ def main():
     iterator = tf.data.Iterator.from_string_handle(handle, dataset_train.output_types)
     (pts_fts, labels) = iterator.get_next()
 
+    pts_fts_sampled = tf.gather_nd(pts_fts, indices=indices, name='pts_fts_sampled')
     features_augmented = None
     if setting.data_dim > 3:
-        points, features = tf.split(pts_fts, [3, setting.data_dim - 3], axis=-1, name='split_points_features')
+        points_sampled, features_sampled = tf.split(pts_fts_sampled,
+                                                    [3, setting.data_dim - 3],
+                                                    axis=-1,
+                                                    name='split_points_features')
         if setting.use_extra_features:
-            features_sampled = tf.gather_nd(features, indices=indices, name='features_sampled')
             if setting.with_normal_feature:
-                features_augmented = pf.augment(features_sampled, rotations)
+                if setting.data_dim < 6:
+                    print('Only 3D normals are supported!')
+                    exit()
+                elif setting.data_dim == 6:
+                    features_augmented = pf.augment(features_sampled, rotations)
+                else:
+                    normals, rest = tf.split(features_sampled, [3, setting.data_dim - 6])
+                    normals_augmented = pf.augment(normals, rotations)
+                    features_augmented = tf.concat([normals_augmented, rest], axis=-1)
             else:
                 features_augmented = features_sampled
     else:
-        points = pts_fts
-    points_sampled = tf.gather_nd(points, indices=indices, name='points_sampled')
+        points_sampled = pts_fts_sampled
     points_augmented = pf.augment(points_sampled, xforms, jitter_range)
 
-    net = model.Net(points=points_augmented, features=features_augmented, num_class=num_class,
-                    is_training=is_training, setting=setting)
+    net = model.Net(points=points_augmented, features=features_augmented, is_training=is_training, setting=setting)
     logits = net.logits
     probs = tf.nn.softmax(logits, name='probs')
     _, predictions = tf.nn.top_k(probs, name='predictions')

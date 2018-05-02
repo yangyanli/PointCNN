@@ -56,7 +56,7 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
 
 
 class PointCNN:
-    def __init__(self, points, features, num_class, is_training, setting, task):
+    def __init__(self, points, features, is_training, setting):
         xconv_params = setting.xconv_params
         fc_params = setting.fc_params
         with_X_transformation = setting.with_X_transformation
@@ -129,7 +129,7 @@ class PointCNN:
             else:
                 self.layer_fts.append(fts_xconv)
 
-        if task == 'segmentation':
+        if hasattr(setting, 'xdconv_params'):
             for layer_idx, layer_param in enumerate(setting.xdconv_params):
                 tag = 'xdconv_' + str(layer_idx + 1) + '_'
                 K = layer_param['K']
@@ -160,9 +160,3 @@ class PointCNN:
             fc = pf.dense(self.fc_layers[-1], C, 'fc{:d}'.format(layer_idx), is_training)
             fc_drop = tf.layers.dropout(fc, dropout_rate, training=is_training, name='fc{:d}_drop'.format(layer_idx))
             self.fc_layers.append(fc_drop)
-
-        if task == 'classification':
-            fc_mean = tf.reduce_mean(self.fc_layers[-1], axis=1, keep_dims=True, name='fc_mean')
-            self.fc_layers[-1] = tf.cond(is_training, lambda: self.fc_layers[-1], lambda: fc_mean)
-
-        self.logits = pf.dense(self.fc_layers[-1], num_class, 'logits', is_training, with_bn=False, activation=None)

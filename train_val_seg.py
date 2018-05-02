@@ -48,8 +48,7 @@ def main():
     num_epochs = setting.num_epochs
     batch_size = setting.batch_size
     sample_num = setting.sample_num
-    step_val = 500
-    num_class = setting.num_class
+    step_val = setting.step_val
     label_weights_list = setting.label_weights
     scaling_range = setting.scaling_range
     scaling_range_val = setting.scaling_range_val
@@ -88,11 +87,14 @@ def main():
     labels_weights = tf.placeholder(tf.float32, shape=(None, point_num), name='labels_weights')
 
     ######################################################################
+    pts_fts_sampled = tf.gather_nd(pts_fts, indices=indices, name='pts_fts_sampled')
     features_augmented = None
     if setting.data_dim > 3:
-        points, features = tf.split(pts_fts, [3, setting.data_dim - 3], axis=-1, name='split_points_features')
+        points_sampled, features_sampled = tf.split(pts_fts_sampled,
+                                                    [3, setting.data_dim - 3],
+                                                    axis=-1,
+                                                    name='split_points_features')
         if setting.use_extra_features:
-            features_sampled = tf.gather_nd(features, indices=indices, name='features_sampled')
             if setting.with_normal_feature:
                 if setting.data_dim < 6:
                     print('Only 3D normals are supported!')
@@ -106,14 +108,13 @@ def main():
             else:
                 features_augmented = features_sampled
     else:
-        points = pts_fts
-
-    points_sampled = tf.gather_nd(points, indices=indices, name='points_sampled')
+        points_sampled = pts_fts_sampled
     points_augmented = pf.augment(points_sampled, xforms, jitter_range)
+
     labels_sampled = tf.gather_nd(labels_seg, indices=indices, name='labels_sampled')
     labels_weights_sampled = tf.gather_nd(labels_weights, indices=indices, name='labels_weight_sampled')
 
-    net = model.Net(points_augmented, features_augmented, num_class, is_training, setting)
+    net = model.Net(points_augmented, features_augmented, is_training, setting)
     logits = net.logits
     probs = tf.nn.softmax(logits, name='probs')
     _, predictions = tf.nn.top_k(probs, name='predictions')

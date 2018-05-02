@@ -73,20 +73,22 @@ def main():
     indices = tf.placeholder(tf.int32, shape=(batch_size, None, 2), name="indices")
     is_training = tf.placeholder(tf.bool, name='is_training')
     pts_fts = tf.placeholder(tf.float32, shape=(batch_size, max_point_num, setting.data_dim), name='points')
+    ######################################################################
 
     ######################################################################
-    
-    features_augmented = None
+    pts_fts_sampled = tf.gather_nd(pts_fts, indices=indices, name='pts_fts_sampled')
     if setting.data_dim > 3:
-        points, features = tf.split(pts_fts, [3, setting.data_dim - 3], axis=-1, name='split_points_features')
-        if setting.use_extra_features:
-            features_augmented = tf.gather_nd(features, indices=indices, name='features_sampled')
+        points_sampled, features_sampled = tf.split(pts_fts_sampled,
+                                                    [3, setting.data_dim - 3],
+                                                    axis=-1,
+                                                    name='split_points_features')
+        if not setting.use_extra_features:
+            features_sampled = None
     else:
-        points = pts_fts
+        points_sampled = pts_fts_sampled
+        features_sampled = None
 
-    points_sampled = tf.gather_nd(points, indices=indices, name='points_sampled')
-
-    net = model.Net(points_sampled, features_augmented, num_class, is_training, setting)
+    net = model.Net(points_sampled, features_sampled, num_class, is_training, setting)
     _, seg_probs_op = net.logits, net.probs
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
