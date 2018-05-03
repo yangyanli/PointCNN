@@ -63,7 +63,7 @@ def main():
         data_train = np.repeat(data_train, repeat_num, axis=0)
         label_train = np.repeat(label_train, repeat_num, axis=0)
         data_train, label_train = data_utils.grouped_shuffle([data_train, label_train])
-        num_epochs = math.floor(num_epochs*(num_train_before_balance/data_train.shape[0]))
+        num_epochs = math.floor(num_epochs * (num_train_before_balance / data_train.shape[0]))
 
     if setting.save_ply_fn is not None:
         folder = os.path.join(root_folder, 'pts')
@@ -174,7 +174,7 @@ def main():
                                                                                                predictions,
                                                                                                setting.num_class)
     reset_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
-                                                     if var.name.split('/')[0] == 'metrics'])
+                                                 if var.name.split('/')[0] == 'metrics'])
 
     _ = tf.summary.scalar('loss/train', tensor=loss_mean_op, collections=['train'])
     _ = tf.summary.scalar('t_1_acc/train', tensor=t_1_acc_op, collections=['train'])
@@ -286,9 +286,9 @@ def main():
                 batch_size_train = batch_size
             else:
                 batch_size_train = num_train % batch_size
-            offset = int(random.gauss(0, sample_num // 8))
-            offset = max(offset, -sample_num // 4)
-            offset = min(offset, sample_num // 4)
+            offset = int(random.gauss(0, sample_num * setting.sample_num_variance))
+            offset = max(offset, -sample_num * setting.sample_num_clip)
+            offset = min(offset, sample_num * setting.sample_num_clip)
             sample_num_train = sample_num + offset
             xforms_np, rotations_np = pf.get_xforms(batch_size_train, rotation_range=rotation_range,
                                                     order=setting.order)

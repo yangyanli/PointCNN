@@ -58,6 +58,9 @@ order = 'rxyz'
 scaling_range = [0, [0.01], 0, 'u']
 scaling_range_val = [0, [0.01], 0, 'u']
 
+sample_num_variance = 1 // 8
+sample_num_clip = 1 // 4
+
 x = 4
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
