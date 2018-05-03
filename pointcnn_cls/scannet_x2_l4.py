@@ -17,7 +17,7 @@ num_class = 17
 
 sample_num = 1024
 
-batch_size = 200
+batch_size = 128
 
 num_epochs = 1024
 

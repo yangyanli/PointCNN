@@ -9,11 +9,8 @@ import tensorflow as tf
 
 def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation, depth_multiplier,
           sorting_method=None, with_global=False):
-    if D == 1:
-        _, indices = pf.knn_indices_general(qrs, pts, K, True)
-    else:
-        _, indices_dilated = pf.knn_indices_general(qrs, pts, K * D, True)
-        indices = indices_dilated[:, :, ::D, :]
+    _, indices_dilated = pf.knn_indices_general(qrs, pts, K * D, True)
+    indices = indices_dilated[:, :, ::D, :]
 
     if sorting_method is not None:
         indices = pf.sort_points(pts, indices, sorting_method)
