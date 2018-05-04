@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import data_utils
 
 load_fn = data_utils.load_cls_train_val
-balance_fn = None
+balance_fn = data_utils.balance_classes
 map_fn = None
 keep_remainder = True
 save_ply_fn = None

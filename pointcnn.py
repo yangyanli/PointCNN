@@ -46,7 +46,7 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
 
     if with_global:
         fts_global_0 = pf.dense(qrs, C // 4, tag + 'fts_global_0', is_training)
-        fts_global = pf.dense(fts_global_0, C // 4, tag + 'fts_global_', is_training)
+        fts_global = pf.dense(fts_global_0, C // 4, tag + 'fts_global', is_training)
         return tf.concat([fts_global, fts_conv_3d], axis=-1, name=tag + 'fts_conv_3d_with_global')
     else:
         return fts_conv_3d
@@ -115,11 +115,8 @@ class PointCNN:
             for link in links:
                 fts_from_link = self.layer_fts[link]
                 if fts_from_link is not None:
-                    fts_slice = tf.slice(fts_from_link, (0, 0, 0), (-1, P, -1),
-                                         name=tag + 'fts_slice_' + str(-link))
-                    C_forward = math.ceil(fts_slice.get_shape().as_list()[-1] / (-link))
-                    fts_forward = pf.dense(fts_slice, C_forward, tag + 'fts_forward_' + str(-link), is_training)
-                    fts_list.append(fts_forward)
+                    fts_slice = tf.slice(fts_from_link, (0, 0, 0), (-1, P, -1), name=tag + 'fts_slice_' + str(-link))
+                    fts_list.append(fts_slice)
             if fts_list:
                 fts_list.append(fts_xconv)
                 self.layer_fts.append(tf.concat(fts_list, axis=-1, name=tag + 'fts_list_concat'))
