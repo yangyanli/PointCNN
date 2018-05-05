@@ -15,7 +15,7 @@ save_ply_fn = None
 
 num_class = 40
 
-sample_num = 512
+sample_num = 1024
 
 batch_size = 128
 
@@ -33,7 +33,7 @@ weight_decay = 1e-6
 jitter = 0.0
 jitter_val = 0.0
 
-rotation_range = [0, math.pi, 0, 'u']
+rotation_range = [0, math.pi/36, 0, 'g']
 rotation_range_val = [0, 0, 0, 'u']
 order = 'rxyz'
 
@@ -48,7 +48,7 @@ x = 3
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                 [(8, 1, -1, 16 * x, []),
-                 (12, 2, 256, 32 * x, []),
+                 (12, 2, 384, 32 * x, []),
                  (16, 2, 128, 64 * x, []),
                  (16, 3, 128, 128 * x, [])]]
 

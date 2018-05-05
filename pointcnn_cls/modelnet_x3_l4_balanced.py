@@ -8,14 +8,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import data_utils
 
 load_fn = data_utils.load_cls_train_val
-balance_fn = None
+balance_fn = data_utils.balance_classes
 map_fn = None
 keep_remainder = True
 save_ply_fn = None
 
 num_class = 40
 
-sample_num = 512
+sample_num = 1024
 
 batch_size = 128
 
@@ -48,9 +48,9 @@ x = 3
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                 [(8, 1, -1, 16 * x, []),
-                 (12, 2, 256, 32 * x, []),
+                 (12, 2, 384, 32 * x, []),
                  (16, 2, 128, 64 * x, []),
-                 (16, 3, 128, 128 * x, [])]]
+                 (16, 2, 128, 128 * x, [])]]
 
 with_global = True
 

@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import data_utils
 
 load_fn = data_utils.load_cls_train_val
-balance_fn = data_utils.balance_classes
+balance_fn = None
 map_fn = None
 keep_remainder = True
 save_ply_fn = None
@@ -37,7 +37,7 @@ rotation_range = [0, math.pi, 0, 'u']
 rotation_range_val = [0, 0, 0, 'u']
 order = 'rxyz'
 
-scaling_range = [0.05, 0.05, 0.05, 'g']
+scaling_range = [0.1, 0.1, 0.1, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
 sample_num_variance = 1 // 8
@@ -57,7 +57,7 @@ with_global = True
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
              [(128 * x, 0.0),
-              (64 * x, 0.5)]]
+              (64 * x, 0.8)]]
 
 sampling = 'random'
 
