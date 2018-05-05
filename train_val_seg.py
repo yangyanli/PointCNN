@@ -126,7 +126,7 @@ def main():
         loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
         t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1)
         t_1_per_class_acc_op, t_1_per_class_acc_update_op = tf.metrics.mean_per_class_accuracy(labels_sampled,
-                                                                                               predictions,
+                                                                                               tf.squeeze(predictions,[-1]),
                                                                                                setting.num_class)
     reset_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
                                                  if var.name.split('/')[0] == 'metrics'])
