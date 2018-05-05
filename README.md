@@ -4,9 +4,9 @@ Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>,<a href="h
 
 ## Introduction
 
-PointCNN is a simple and general framework for feature learning from point cloud, which refreshed five benchmark records in point cloud processing, including:
+PointCNN is a simple and general framework for feature learning from point cloud, which refreshed five benchmark records in point cloud processing (as of Jan. 23, 2018), including:
 
-* classification accuracy on ModelNet40 (**91.7%**)
+* classification accuracy on ModelNet40 (**91.7%**, with 1024 input points only)
 * classification accuracy on ScanNet (**77.9%**)
 * segmentation part averaged IoU on ShapeNet Parts (**86.13%**)
 * segmentation mean IoU on S3DIS (**62.74%**)
@@ -52,7 +52,7 @@ Each element in xdconv_params is a tuple of (K, D, pts_layer_idx, qrs_layer_idx)
 
 ## PointCNN Usage
 
-PointCNN is implemented and tested with Tensorflow 1.4 in python3 scripts. **Tensorflow before 1.3 version is not recommended, as Tensoflow 1.3 introduced a notable speedup in top_k operation, which PointCNN heavily depends on for nearest neighbor query.** It has dependencies on some python packages such as transforms3d, h5py, plyfile, and maybe more if it complains. Install these packages before the use of PointCNN.
+PointCNN is implemented and tested with Tensorflow 1.6 in python3 scripts. **Tensorflow before 1.3 version is not recommended, as Tensoflow 1.3 introduced a notable speedup in top_k operation, which PointCNN heavily depends on for nearest neighbor query.** It has dependencies on some python packages such as transforms3d, h5py, plyfile, and maybe more if it complains. Install these packages before the use of PointCNN.
 
 Here we list the commands for training/evaluating PointCNN on classification and segmentation tasks on multiple datasets.
 
