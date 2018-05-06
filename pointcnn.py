@@ -67,6 +67,7 @@ class PointCNN:
         if features is None:
             self.layer_fts = [features]
         else:
+            features = tf.reshape(features, (N, -1, setting.data_dim - 3), name='features_reshape')
             C_fts = xconv_params[0]['C'] // 2
             features_hd = pf.dense(features, C_fts, 'features_hd', is_training)
             self.layer_fts = [features_hd]
