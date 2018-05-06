@@ -23,10 +23,10 @@ def main():
     args = parser.parse_args()
     print(args)
 
-    root = args.folder if args.folder else '../../data/shapenet_partseg/'
-    folders = [(root + 'train_data', root + 'train_label'),
-               (root + 'val_data', root + 'val_label'),
-               (root + 'test_data', root + 'test_label')]
+    root = args.folder if args.folder else '../../data/shapenet_partseg'
+    folders = [(os.path.join(root,'train_data'), os.path.join(root,'train_label')),
+               (os.path.join(root,'val_data'), os.path.join(root,'val_label')),
+               (os.path.join(root,'test_data'), os.path.join(root,'test_label'))]
     category_label_seg_max_dict = dict()
     max_point_num = 0
     label_seg_min = sys.maxsize
