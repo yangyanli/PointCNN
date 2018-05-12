@@ -50,7 +50,7 @@ xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                 [(8, 1, -1, 16 * x, []),
                  (12, 3, -1, 32 * x, []),
                  (16, 3, 120, 64 * x, []),
-                 (16, 5, 120, 128 * x, [])]]
+                 (16, 4, 120, 128 * x, [])]]
 
 with_global = True
 

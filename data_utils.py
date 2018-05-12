@@ -125,6 +125,15 @@ def load_cls_train_val(filelist, filelist_val):
     return data_train, label_train, data_val, label_val
 
 
+def is_h5_list(filelist):
+    return all([line[-3:] == '.h5' for line in open(filelist)])
+
+
+def load_seg_list(filelist):
+    folder = os.path.dirname(filelist)
+    return [os.path.join(folder, line.strip()) for line in open(filelist)]
+
+
 def load_seg(filelist):
     points = []
     labels = []

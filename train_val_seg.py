@@ -57,7 +57,15 @@ def main():
 
     # Prepare inputs
     print('{}-Preparing datasets...'.format(datetime.now()))
-    data_train, _, data_num_train, label_train = data_utils.load_seg(args.filelist)
+    is_list_of_h5_list = not data_utils.is_h5_list(args.filelist)
+    if is_list_of_h5_list:
+        seg_list = data_utils.load_seg_list(args.filelist)
+        seg_list_idx = 0
+        filelist_train = seg_list[seg_list_idx]
+        seg_list_idx = seg_list_idx + 1
+    else:
+        filelist_train = args.filelist
+    data_train, _, data_num_train, label_train = data_utils.load_seg(filelist_train)
     data_val, _, data_num_val, label_val = data_utils.load_seg(args.filelist_val)
 
     # shuffle
@@ -234,6 +242,10 @@ def main():
             weights_batch = np.array(label_weights_list)[labels_batch]
 
             if start_idx + batch_size_train == num_train:
+                if is_list_of_h5_list:
+                    filelist_train = seg_list[seg_list_idx % len(seg_list)]
+                    seg_list_idx = seg_list_idx + 1
+                    data_train, _, data_num_train, label_train = data_utils.load_seg(filelist_train)
                 data_train, data_num_train, label_train = \
                     data_utils.grouped_shuffle([data_train, data_num_train, label_train])
 
