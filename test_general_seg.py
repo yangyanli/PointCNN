@@ -88,8 +88,8 @@ def main():
         points_sampled = pts_fts_sampled
         features_sampled = None
 
-    net = model.Net(points_sampled, features_sampled, num_class, is_training, setting)
-    _, seg_probs_op = net.logits, net.probs
+    net = model.Net(points_sampled, features_sampled, is_training, setting)
+    seg_probs_op = tf.nn.softmax(net.logits, name='seg_probs')
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 

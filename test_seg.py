@@ -90,8 +90,8 @@ def main():
         points_sampled = pts_fts_sampled
         features_sampled = None
 
-    net = model.Net(points_sampled, features_sampled, num_class, is_training, setting)
-    probs_op = net.probs
+    net = model.Net(points_sampled, features_sampled, is_training, setting)
+    probs_op = tf.nn.softmax(net.logits, name='probs')
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     saver = tf.train.Saver()

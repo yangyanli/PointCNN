@@ -42,6 +42,4 @@ class Net:
         net = tf_util.dropout(net, keep_prob=0.4, is_training=is_training, scope='dp2')
         net = tf_util.fully_connected(FC3_inputs_shape, net, num_class, activation_fn=None, scope='fc3')
 
-        net_expand = tf.expand_dims(net,axis = 1)
-        self.logits = net_expand
-        self.probs = tf.nn.softmax(self.logits, name='probs')
+        self.logits = tf.expand_dims(net,axis = 1)
