@@ -38,7 +38,7 @@ def main():
     sample_num = setting.sample_num
     num_class = setting.num_class
 
-    output_folder = args.data_folder + '_pred_' + str(args.repeat_num)
+    output_folder = args.data_folder + '_pred_nips_' + str(args.repeat_num)
     category_list = [(category, int(label_num)) for (category, label_num) in
                      [line.split() for line in open(args.category, 'r')]]
     offset = 0
@@ -91,7 +91,8 @@ def main():
         features_sampled = None
 
     net = model.Net(points_sampled, features_sampled, is_training, setting)
-    probs_op = tf.nn.softmax(net.logits, name='probs')
+    logits = net.logits
+    probs_op = tf.nn.softmax(logits, name='probs')
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     saver = tf.train.Saver()
@@ -120,7 +121,7 @@ def main():
 
             _, probs = sess.run([update_ops, probs_op],
                                 feed_dict={
-                                    points: points_batch,
+                                    pts_fts: points_batch,
                                     indices: indices_batch,
                                     is_training: False,
                                 })
