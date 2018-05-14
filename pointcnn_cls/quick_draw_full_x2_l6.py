@@ -41,10 +41,10 @@ num_epochs = 32
 
 step_val = 20000
 
-learning_rate_base = 0.01
+learning_rate_base = 1e-2
 decay_steps = 200000
 decay_rate = 0.7
-learning_rate_min = 0.00001
+learning_rate_min = 1e-5
 
 weight_decay = 0.0
 
@@ -61,23 +61,24 @@ scaling_range_val = [0, [0.01], 0, 'u']
 sample_num_variance = 1 // 8
 sample_num_clip = 1 // 4
 
-x = 4
+x = 2
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
-                [(8, 1, -1, 16 * x, []),
-                 (12, 2, 256, 32 * x, []),
-                 (16, 3, 128, 64 * x, []),
-                 (16, 6, 128, num_class * 2, [])]]
-
-with_global = True
+                [(8, 2, -1, 16 * x, []),
+                 (12, 2, 192, 64 * x, []),
+                 (16, 1, 64, 128 * x, []),
+                 (16, 2, 64, 128 * x, []),
+                 (16, 3, 64, 128 * x, []),
+                 (16, 4, 64, num_class * x, [])]]
 
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
-             [(num_class * 2, 0.0),
-              (num_class * 2, 0.5)]]
+             [(num_class * x, 0.0),
+              (num_class * x, 0.5)]]
 
 sampling = 'random'
+with_global = True
 
 optimizer = 'adam'
 epsilon = 1e-6

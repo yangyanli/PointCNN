@@ -28,14 +28,14 @@ decay_steps = 8000
 decay_rate = 0.5
 learning_rate_min = 1e-6
 
-weight_decay = 1e-6
+weight_decay = 1e-5
 
 jitter = 0.0
 jitter_val = 0.0
 
 rotation_range = [0, math.pi, 0, 'u']
 rotation_range_val = [0, 0, 0, 'u']
-order = 'rxyz'
+rotation_order = 'rxyz'
 
 scaling_range = [0.1, 0.1, 0.1, 'g']
 scaling_range_val = [0, 0, 0, 'u']
@@ -48,9 +48,9 @@ x = 3
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                 [(8, 1, -1, 16 * x, []),
-                (12, 2, 384, 32 * x, []),
-                (16, 2, 128, 64 * x, []),
-                (16, 3, 128, 128 * x, [])]]
+                 (12, 2, 384, 32 * x, []),
+                 (16, 2, 128, 64 * x, []),
+                 (16, 3, 128, 128 * x, [])]]
 
 with_global = True
 

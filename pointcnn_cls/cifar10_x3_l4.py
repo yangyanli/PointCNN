@@ -28,10 +28,10 @@ decay_steps = 8000
 decay_rate = 0.5
 learning_rate_min = 1e-6
 
-weight_decay = 1e-6
+weight_decay = 1e-5
 
-jitter = 0.002
-jitter_val = 0.002
+jitter = 0.0
+jitter_val = 0.0
 
 rotation_range = [0, 0, [0, math.pi], 'g']
 rotation_range_val = [0, 0, 0, 'u']

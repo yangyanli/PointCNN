@@ -30,7 +30,7 @@ def main():
     args = parser.parse_args()
 
     time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    root_folder = os.path.join(args.save_folder, '%s_%s_%d_%s' % (args.model, args.setting, os.getpid(), time_string))
+    root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
     if not os.path.exists(root_folder):
         os.makedirs(root_folder)
 
@@ -51,8 +51,12 @@ def main():
     step_val = setting.step_val
     rotation_range = setting.rotation_range
     rotation_range_val = setting.rotation_range_val
+    scaling_range = setting.scaling_range
+    scaling_range_val = setting.scaling_range_val
     jitter = setting.jitter
     jitter_val = setting.jitter_val
+    pool_setting_val = None if not hasattr(setting, 'pool_setting_val') else setting.pool_setting_val
+    pool_setting_train = None if not hasattr(setting, 'pool_setting_train') else setting.pool_setting_train
 
     # Prepare inputs
     print('{}-Preparing datasets...'.format(datetime.now()))
@@ -165,6 +169,7 @@ def main():
 
     labels_2d = tf.expand_dims(labels, axis=-1, name='labels_2d')
     labels_tile = tf.tile(labels_2d, (1, tf.shape(logits)[1]), name='labels_tile')
+
     loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_tile, logits=logits)
 
     with tf.name_scope('metrics'):
@@ -259,17 +264,17 @@ def main():
                         batch_size_val = num_val % batch_size
                     xforms_np, rotations_np = pf.get_xforms(batch_size_val,
                                                             rotation_range=rotation_range_val,
-                                                            order=setting.order)
+                                                            scaling_range=scaling_range_val,
+                                                            order=setting.rotation_order)
                     sess.run([loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                              feed_dict={
                                  handle: handle_val,
-                                 indices: pf.get_indices(batch_size_val, sample_num, point_num),
+                                 indices: pf.get_indices(batch_size_val, sample_num, point_num, pool_setting_val),
                                  xforms: xforms_np,
                                  rotations: rotations_np,
                                  jitter_range: np.array([jitter_val]),
                                  is_training: False,
                              })
-
                 loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val = sess.run(
                     [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op])
                 summary_writer.add_summary(summaries_val, batch_idx_train)
@@ -286,18 +291,20 @@ def main():
                 batch_size_train = batch_size
             else:
                 batch_size_train = num_train % batch_size
+
             offset = int(random.gauss(0, sample_num * setting.sample_num_variance))
             offset = max(offset, -sample_num * setting.sample_num_clip)
             offset = min(offset, sample_num * setting.sample_num_clip)
             sample_num_train = sample_num + offset
-            xforms_np, rotations_np = pf.get_xforms(batch_size_train, rotation_range=rotation_range,
-                                                    order=setting.order)
-
+            xforms_np, rotations_np = pf.get_xforms(batch_size_train,
+                                                    rotation_range=rotation_range,
+                                                    scaling_range=scaling_range,
+                                                    order=setting.rotation_order)
             sess.run(reset_metrics_op)
             sess.run([train_op, loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                      feed_dict={
                          handle: handle_train,
-                         indices: pf.get_indices(batch_size_train, sample_num_train, point_num),
+                         indices: pf.get_indices(batch_size_train, sample_num_train, point_num, pool_setting_train),
                          xforms: xforms_np,
                          rotations: rotations_np,
                          jitter_range: np.array([jitter]),

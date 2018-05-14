@@ -10,7 +10,7 @@ from transforms3d.euler import euler2mat
 
 
 # the returned indices will be used by tf.gather_nd
-def get_indices(batch_size, sample_num, point_num, random_sample=True):
+def get_indices(batch_size, sample_num, point_num, pool_setting=None):
     if not isinstance(point_num, np.ndarray):
         point_nums = np.full((batch_size), point_num)
     else:
@@ -19,14 +19,21 @@ def get_indices(batch_size, sample_num, point_num, random_sample=True):
     indices = []
     for i in range(batch_size):
         pt_num = point_nums[i]
-        if random_sample:
-            if pt_num > sample_num:
-                choices = np.random.choice(pt_num, sample_num, replace=False)
-            else:
-                choices = np.concatenate((np.random.choice(pt_num, pt_num, replace=False),
-                                          np.random.choice(pt_num, sample_num - pt_num, replace=True)))
+        if pool_setting is None:
+            pool_size = pt_num
         else:
-            choices = np.arange(sample_num) % pt_num
+            if isinstance(pool_setting, int):
+                pool_size = min(pool_setting, pt_num)
+            elif isinstance(pool_setting, tuple):
+                pool_size = min(random.randrange(pool_setting[0], pool_setting[1]+1), pt_num)
+        if pool_size > sample_num:
+            choices = np.random.choice(pool_size, sample_num, replace=False)
+        else:
+            choices = np.concatenate((np.random.choice(pool_size, pool_size, replace=False),
+                                      np.random.choice(pool_size, sample_num - pool_size, replace=True)))
+        if pool_size < pt_num:
+            choices_pool = np.random.choice(pt_num, pool_size, replace=False)
+            choices = choices_pool[choices]
         choices = np.expand_dims(choices, axis=1)
         choices_2d = np.concatenate((np.full_like(choices, i), choices), axis=1)
         indices.append(choices_2d)
@@ -120,13 +127,32 @@ def batch_distance_matrix_general(A, B):
     return D
 
 
+# A shape is (N, P, C)
+def find_duplicate_columns(A):
+    N = A.shape[0]
+    P = A.shape[1]
+    indices_duplicated = np.fill((N, 1, P), 1, dtype=np.int32)
+    for idx in range(N):
+        _, indices = np.unique(A[idx], return_index=True, axis=0)
+        indices_duplicated[idx, :, indices] = 0
+    return indices_duplicated
+
+
+# add a big value to duplicate columns
+def prepare_for_unique_top_k(D, A):
+    indices_duplicated = tf.py_func(find_duplicate_columns, [A], tf.int32)
+    D += tf.reduce_max(D)*tf.cast(indices_duplicated, tf.float32)
+
+
 # return shape is (N, P, K, 2)
-def knn_indices(points, k, sort=True):
+def knn_indices(points, k, sort=True, unique=True):
     points_shape = tf.shape(points)
     batch_size = points_shape[0]
     point_num = points_shape[1]
 
     D = batch_distance_matrix(points)
+    if unique:
+        prepare_for_unique_top_k(D, points)
     distances, point_indices = tf.nn.top_k(-D, k=k, sorted=sort)
     batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1, 1)), (1, point_num, k, 1))
     indices = tf.concat([batch_indices, tf.expand_dims(point_indices, axis=3)], axis=3)
@@ -134,12 +160,14 @@ def knn_indices(points, k, sort=True):
 
 
 # return shape is (N, P, K, 2)
-def knn_indices_general(queries, points, k, sort=True):
+def knn_indices_general(queries, points, k, sort=True, unique=True):
     queries_shape = tf.shape(queries)
     batch_size = queries_shape[0]
     point_num = queries_shape[1]
 
     D = batch_distance_matrix_general(queries, points)
+    if unique:
+        prepare_for_unique_top_k(D, points)
     distances, point_indices = tf.nn.top_k(-D, k=k, sorted=sort)  # (N, P, K)
     batch_indices = tf.tile(tf.reshape(tf.range(batch_size), (-1, 1, 1, 1)), (1, point_num, k, 1))
     indices = tf.concat([batch_indices, tf.expand_dims(point_indices, axis=3)], axis=3)

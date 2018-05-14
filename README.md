@@ -85,10 +85,10 @@ Here we list the commands for training/evaluating PointCNN on classification and
 
   #./pointcnn_root
   cd ../../../pointcnn/data_conversions
-  python scannet_extract_obj.py -f ../../data/scannet/scannet_dataset_download/data/ -b ../../data/scannet/scannet_dataset_download/benchmark/ -o ../../data/scannet/cls/
+  python extract_scannet_objs.py -f ../../data/scannet/scannet_dataset_download/data/ -b ../../data/scannet/scannet_dataset_download/benchmark/ -o ../../data/scannet/cls/
   python prepare_scannet_cls_data.py -f ../../data/scannet/cls/
   cd ../pointcnn_cls/
-  ./train_val_scannet.sh -g 0 -x scannet_x3_l4.py
+  ./train_val_scannet.sh -g 0 -x scannet_x3_l4
   ```
 
   * #### tu_berlin
@@ -152,46 +152,45 @@ Here we list the commands for training/evaluating PointCNN on classification and
   * #### S3DIS
   Please refer to [data_conversions](data_conversions/README.md) for downloading S3DIS, then:
   ```
-  cd data_conversions/split_data
-  python3 s3dis_prepare_label.py
-  python3 s3dis_split.py
-  cd ..
-  python3 prepare_multiChannel_seg_data.py -f ../../data/S3DIS/out_part_rgb/ -c 6
+  cd data_conversions
+  python3 prepare_s3dis_label.py
+  python3 prepare_s3dis_data.py
+  python3 prepare_s3dis_filelists.py
   mv S3DIS_files/* ../../data/S3DIS/out_part_rgb/
-  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps
-  ./test_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
+  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps -a 1
+  ./test_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps -a 1 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
   cd ../evaluation
-  python3 s3dis_upsampling.py
+  python3 s3dis_merge.py -d <path to *_pred.h5>
   python3 eval_s3dis.py
   ```
-  Please notice that these command just for Area1 validation, after modify the train val path in train_val_s3dis.sh, test_s3dis.sh and s3dis_upsampling.py, you can get other Area results.
+  Please notice that these command just for Area 1 (specified by -a 1 option) validation. Results on other Areas can be computed by iterating -a option.
 
   * #### ScanNet
   Please refer to [data_conversions](data_conversions/README.md) for downloading ScanNet, then:
   ```
-  cd data_conversions/split_data
-  python3 scannet_split.py
-  cd ..
-  python3 prepare_multiChannel_seg_data.py -f ../../data/scannet/scannet_split_dataset/
+  cd data_conversions
+  python3 prepare_scannet_seg_data.py
+  python3 prepare_scannet_seg_filelists.py
   cd ../pointcnn_seg
   ./train_val_scannet.sh -g 0 -x scannet_x8_2048_k8_fps
   ./test_scannet.sh -g 0 -x scannet_x8_2048_k8_fps -l ../../models/seg/pointcnn_seg_scannet_x8_2048_k8_fps_xxxx/ckpts/iter-xxxxx -r 4
   cd ../evaluation
   python3 eval_scannet.py
   ```
-  * #### Semantic3D (Working in progress, stay tuned ;-)
+  * #### Semantic3D
   ```
   cd data_conversions
   bash download_semantic3d.sh
   bash un7z_semantic3d.sh
   mkdir ../../data/semantic3d/val
   mv ../../data/semantic3d/train/bildstein_station3_xyz_intensity_rgb.* ../../data/semantic3d/train/domfountain_station2_xyz_intensity_rgb.* ../../data/semantic3d/train/sg27_station4_intensity_rgb.* ../../data/semantic3d/train/untermaederbrunnen_station3_xyz_intensity_rgb.* ../../data/semantic3d/val
-  cd split_data
-  python3 semantic3d_split.py
-  cd ..
-  python3 prepare_multiChannel_seg_data.py -f ../../data/semantic3d/out_part -c 6
+  python3 prepare_semantic3d_data.py
+  python3 prepare_semantic3d_filelists.py
   cd ../pointcnn_seg
   ./train_val_semantic3d.sh -g 0 -x semantic3d_x8_2048_k16
+  ./test_semantic3d.sh -g 0 -x semantic3d_x8_2048_k16 -l <path to ckpt>
+  cd ../evaluation
+  python3 semantic3d_merge.py -d <path to *_pred.h5> -v <reduced or full>
   ```
   
 * ### Tensorboard

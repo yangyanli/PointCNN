@@ -39,7 +39,7 @@ jitter_val = 0.0
 
 rotation_range = [0, 0, 0, 'u']
 rotation_range_val = [0, 0, 0, 'u']
-order = 'rxyz'
+rotation_order = 'rxyz'
 
 scaling_range = [0, [0.01], 0, 'u']
 scaling_range_val = [0, [0.01], 0, 'u']

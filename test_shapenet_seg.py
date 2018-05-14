@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Testing On Segmentation Task."""
+"""Testing On ShapeNet Parts Segmentation Task."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -36,7 +36,6 @@ def main():
     setting = importlib.import_module(os.path.basename(args.setting))
 
     sample_num = setting.sample_num
-    num_class = setting.num_class
 
     output_folder = args.data_folder + '_pred_nips_' + str(args.repeat_num)
     category_list = [(category, int(label_num)) for (category, label_num) in
@@ -62,7 +61,7 @@ def main():
 
     # Prepare inputs
     print('{}-Preparing datasets...'.format(datetime.now()))
-    data, label, data_num, _ = data_utils.load_seg(args.filelist)
+    data, label, data_num, _, _ = data_utils.load_seg(args.filelist)
 
     batch_num = data.shape[0]
     max_point_num = data.shape[1]
@@ -129,17 +128,17 @@ def main():
             predictions = [(-1, 0.0)] * point_num
             for idx in range(sample_num * batch_size):
                 point_idx = indices_shuffle[idx]
-                point_probs = probs_2d[idx, label_start:label_end]
-                prob = np.amax(point_probs)
-                seg_idx = np.argmax(point_probs)
-                if prob > predictions[point_idx][1]:
-                    predictions[point_idx] = (seg_idx, prob)
+                probs = probs_2d[idx, label_start:label_end]
+                confidence = np.amax(probs)
+                label = np.argmax(probs)
+                if confidence > predictions[point_idx][1]:
+                    predictions[point_idx] = (label, confidence)
 
             labels = []
             with open(output_filelist[batch_idx], 'w') as file_seg:
-                for seg_idx, _ in predictions:
-                    file_seg.write('%d\n' % (seg_idx))
-                    labels.append(seg_idx)
+                for label, _ in predictions:
+                    file_seg.write('%d\n' % (label))
+                    labels.append(label)
 
             # read the coordinates from the txt file for verification
             coordinates = [[float(value) for value in xyz.split(' ')]

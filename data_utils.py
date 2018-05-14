@@ -7,7 +7,6 @@ import h5py
 import plyfile
 import numpy as np
 from matplotlib import cm
-import scipy.spatial.distance as distance
 
 
 def save_ply(points, filename, colors=None, normals=None):
@@ -45,12 +44,15 @@ def save_ply(points, filename, colors=None, normals=None):
     ply.write(filename)
 
 
-def save_ply_property(points, property, property_max, filename, cmap_name='Set1'):
+def save_ply_property(points, property, property_max, filename, cmap_name='tab20'):
     point_num = points.shape[0]
     colors = np.full(points.shape, 0.5)
     cmap = cm.get_cmap(cmap_name)
     for point_idx in range(point_num):
-        colors[point_idx] = cmap(property[point_idx] / property_max)[:3]
+        if property[point_idx] == 0:
+            colors[point_idx] = np.array([0, 0, 0])
+        else:
+            colors[point_idx] = cmap(property[point_idx] / property_max)[:3]
     save_ply(points, filename, colors)
 
 
@@ -67,8 +69,22 @@ def save_ply_batch(points_batch, file_path, points_num=None):
             save_ply(points_batch[batch_idx][:point_num], '%s_%04d%s' % (basename, batch_idx, ext))
 
 
+def save_ply_color_batch(points_batch, colors_batch, file_path, points_num=None):
+    batch_size = points_batch.shape[0]
+    if type(file_path) != list:
+        basename = os.path.splitext(file_path)[0]
+        ext = '.ply'
+    for batch_idx in range(batch_size):
+        point_num = points_batch.shape[1] if points_num is None else points_num[batch_idx]
+        if type(file_path) == list:
+            save_ply(points_batch[batch_idx][:point_num], file_path[batch_idx], colors_batch[batch_idx][:point_num])
+        else:
+            save_ply(points_batch[batch_idx][:point_num], '%s_%04d%s' % (basename, batch_idx, ext),
+                     colors_batch[batch_idx][:point_num])
+
+
 def save_ply_property_batch(points_batch, property_batch, file_path, points_num=None, property_max=None,
-                            cmap_name='Set1'):
+                            cmap_name='tab20'):
     batch_size = points_batch.shape[0]
     if type(file_path) != list:
         basename = os.path.splitext(file_path)[0]
@@ -111,7 +127,7 @@ def load_cls(filelist):
         filename = os.path.basename(line.rstrip())
         data = h5py.File(os.path.join(folder, filename))
         if 'normal' in data:
-            points.append(np.concatenate([data['data'][...], data['data'][...]], axis=-1).astype(np.float32))
+            points.append(np.concatenate([data['data'][...], data['normal'][...]], axis=-1).astype(np.float32))
         else:
             points.append(data['data'][...].astype(np.float32))
         labels.append(np.squeeze(data['label'][:]).astype(np.int64))
@@ -126,7 +142,7 @@ def load_cls_train_val(filelist, filelist_val):
 
 
 def is_h5_list(filelist):
-    return all([line[-3:] == '.h5' for line in open(filelist)])
+    return all([line.strip()[-3:] == '.h5' for line in open(filelist)])
 
 
 def load_seg_list(filelist):
@@ -139,19 +155,23 @@ def load_seg(filelist):
     labels = []
     point_nums = []
     labels_seg = []
+    indices_split_to_full = []
 
     folder = os.path.dirname(filelist)
     for line in open(filelist):
-        filename = os.path.basename(line.rstrip())
-        data = h5py.File(os.path.join(folder, filename))
+        data = h5py.File(os.path.join(folder, line.strip()))
         points.append(data['data'][...].astype(np.float32))
         labels.append(data['label'][...].astype(np.int64))
         point_nums.append(data['data_num'][...].astype(np.int32))
         labels_seg.append(data['label_seg'][...].astype(np.int64))
+        if 'indices_split_to_full' in data:
+            indices_split_to_full.append(data['indices_split_to_full'][...].astype(np.int64))
+
     return (np.concatenate(points, axis=0),
             np.concatenate(labels, axis=0),
             np.concatenate(point_nums, axis=0),
-            np.concatenate(labels_seg, axis=0))
+            np.concatenate(labels_seg, axis=0),
+            np.concatenate(indices_split_to_full, axis=0) if indices_split_to_full else None)
 
 
 def balance_classes(labels):

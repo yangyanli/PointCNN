@@ -2,7 +2,7 @@
 
 gpu=
 setting=
-modelsFolder="../../models/cls/"
+models_folder="../../models/cls/"
 
 usage() { echo "train/val pointcnn_cls with -g gpu_id -x setting options"; }
 
@@ -37,9 +37,9 @@ then
   usage; exit;
 fi
 
-if [ ! -d "$modelsFolder" ]
+if [ ! -d "$models_folder" ]
 then
-  mkdir -p "$modelsFolder"
+  mkdir -p "$models_folder"
 fi
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-'''Prepare Data for Segmentation Task.'''
+'''Prepare Data for ShapeNet Segmentation Task.'''
 
 from __future__ import absolute_import
 from __future__ import division

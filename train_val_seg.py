@@ -30,7 +30,7 @@ def main():
     args = parser.parse_args()
 
     time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    root_folder = os.path.join(args.save_folder, '%s_%s_%d_%s' % (args.model, args.setting, os.getpid(), time_string))
+    root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
     if not os.path.exists(root_folder):
         os.makedirs(root_folder)
 
@@ -50,6 +50,8 @@ def main():
     sample_num = setting.sample_num
     step_val = setting.step_val
     label_weights_list = setting.label_weights
+    rotation_range = setting.rotation_range
+    rotation_range_val = setting.rotation_range_val
     scaling_range = setting.scaling_range
     scaling_range_val = setting.scaling_range_val
     jitter = setting.jitter
@@ -65,8 +67,8 @@ def main():
         seg_list_idx = seg_list_idx + 1
     else:
         filelist_train = args.filelist
-    data_train, _, data_num_train, label_train = data_utils.load_seg(filelist_train)
-    data_val, _, data_num_val, label_val = data_utils.load_seg(args.filelist_val)
+    data_train, _, data_num_train, label_train, _ = data_utils.load_seg(filelist_train)
+    data_val, _, data_num_val, label_val, _ = data_utils.load_seg(args.filelist_val)
 
     # shuffle
     data_train, data_num_train, label_train = \
@@ -132,20 +134,21 @@ def main():
 
     with tf.name_scope('metrics'):
         loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
-        t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1)
-        t_1_per_class_acc_op, t_1_per_class_acc_update_op = tf.metrics.mean_per_class_accuracy(labels_sampled,
-                                                                                               tf.squeeze(predictions,[-1]),
-                                                                                               setting.num_class)
+        t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1,
+                                                                  weights=labels_weights_sampled)
+        t_1_per_class_acc_op, t_1_per_class_acc_update_op = \
+            tf.metrics.mean_per_class_accuracy(labels_sampled, tf.squeeze(predictions, [-1]), setting.num_class,
+                                               weights=labels_weights_sampled)
     reset_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
                                                  if var.name.split('/')[0] == 'metrics'])
 
-    _ = tf.summary.scalar('loss/train_seg', tensor=loss_mean_op, collections=['train'])
-    _ = tf.summary.scalar('t_1_acc/train_seg', tensor=t_1_acc_op, collections=['train'])
+    _ = tf.summary.scalar('loss/train', tensor=loss_mean_op, collections=['train'])
+    _ = tf.summary.scalar('t_1_acc/train', tensor=t_1_acc_op, collections=['train'])
     _ = tf.summary.scalar('t_1_per_class_acc/train', tensor=t_1_per_class_acc_op, collections=['train'])
 
-    _ = tf.summary.scalar('loss/val_seg', tensor=loss_mean_op, collections=['val'])
-    _ = tf.summary.scalar('t_1_acc/val_seg', tensor=t_1_acc_op, collections=['val'])
-    _ = tf.summary.scalar('t_1_per_class_acc/val_seg', tensor=t_1_per_class_acc_op, collections=['val'])
+    _ = tf.summary.scalar('loss/val', tensor=loss_mean_op, collections=['val'])
+    _ = tf.summary.scalar('t_1_acc/val', tensor=t_1_acc_op, collections=['val'])
+    _ = tf.summary.scalar('t_1_per_class_acc/val', tensor=t_1_per_class_acc_op, collections=['val'])
 
     lr_exp_op = tf.train.exponential_decay(setting.learning_rate_base, global_step, setting.decay_steps,
                                            setting.decay_rate, staircase=True)
@@ -208,9 +211,12 @@ def main():
                     points_batch = data_val[start_idx:end_idx, ...]
                     points_num_batch = data_num_val[start_idx:end_idx, ...]
                     labels_batch = label_val[start_idx:end_idx, ...]
-                    weights_batch = np.array(label_weights_list)[label_val[start_idx:end_idx, ...]]
+                    weights_batch = np.array(label_weights_list)[labels_batch]
 
-                    xforms_np, rotations_np = pf.get_xforms(batch_size_val, scaling_range=scaling_range_val)
+                    xforms_np, rotations_np = pf.get_xforms(batch_size_val,
+                                                            rotation_range=rotation_range_val,
+                                                            scaling_range=scaling_range_val,
+                                                            order=setting.rotation_order)
                     sess.run([loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                              feed_dict={
                                  pts_fts: points_batch,
@@ -243,9 +249,12 @@ def main():
 
             if start_idx + batch_size_train == num_train:
                 if is_list_of_h5_list:
+                    filelist_train_prev = seg_list[(seg_list_idx - 1) % len(seg_list)]
                     filelist_train = seg_list[seg_list_idx % len(seg_list)]
+                    if filelist_train != filelist_train_prev:
+                        data_train, _, data_num_train, label_train, _ = data_utils.load_seg(filelist_train)
+                        num_train = data_train.shape[0]
                     seg_list_idx = seg_list_idx + 1
-                    data_train, _, data_num_train, label_train = data_utils.load_seg(filelist_train)
                 data_train, data_num_train, label_train = \
                     data_utils.grouped_shuffle([data_train, data_num_train, label_train])
 
@@ -253,13 +262,15 @@ def main():
             offset = max(offset, -sample_num * setting.sample_num_clip)
             offset = min(offset, sample_num * setting.sample_num_clip)
             sample_num_train = sample_num + offset
-            xforms_np, rotations_np = pf.get_xforms(batch_size_train, scaling_range=scaling_range)
+            xforms_np, rotations_np = pf.get_xforms(batch_size_train,
+                                                    rotation_range=rotation_range,
+                                                    scaling_range=scaling_range,
+                                                    order=setting.rotation_order)
             sess.run(reset_metrics_op)
             sess.run([train_op, loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                      feed_dict={
                          pts_fts: points_batch,
-                         indices: pf.get_indices(batch_size_train, sample_num_train,
-                                                 points_num_batch),
+                         indices: pf.get_indices(batch_size_train, sample_num_train, points_num_batch),
                          xforms: xforms_np,
                          rotations: rotations_np,
                          jitter_range: np.array([jitter]),

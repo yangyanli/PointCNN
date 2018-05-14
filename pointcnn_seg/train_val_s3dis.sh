@@ -2,13 +2,16 @@
 
 gpu=
 setting=
-modelsFolder="../../models/seg/"
+area=
+models_folder="../../models/seg/"
+data_folder="../../data/s3dis/"
 
-usage() { echo "train/val pointcnn_seg with -g gpu_id -x setting options"; }
+usage() { echo "train/val pointcnn_seg with -g gpu_id -x setting -a area options"; }
 
 gpu_flag=0
 setting_flag=0
-while getopts g:x:h opt; do
+area_flag=0
+while getopts g:x:a:h opt; do
   case $opt in
   g)
     gpu_flag=1;
@@ -17,6 +20,10 @@ while getopts g:x:h opt; do
   x)
     setting_flag=1;
     setting=${OPTARG}
+    ;;
+  a)
+    area_flag=1;
+    area=$(($OPTARG))
     ;;
   h)
     usage; exit;;
@@ -37,10 +44,16 @@ then
   usage; exit;
 fi
 
-if [ ! -d "$modelsFolder" ]
+if [ $area_flag -eq 0 ]
 then
-  mkdir -p "$modelsFolder"
+  echo "-a option is not presented!"
+  usage; exit;
 fi
 
-echo "Train/Val with setting $setting on GPU $gpu!"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t ../../data/S3DIS/out_part_rgb/train1_files.txt -v ../../data/S3DIS/out_part_rgb/val1_files.txt -s ../../models/seg/ -m pointcnn_seg -x $setting > ../../models/seg/pointcnn_seg_$setting.txt 2>&1 &
+if [ ! -d "$models_folder" ]
+then
+  mkdir -p "$models_folder"
+fi
+
+echo "Train/Val with setting $setting on GPU $gpu for Area $area!"
+CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t $data_folder/train_files_for_val_on_Area_$area.txt -v $data_folder/val_files_Area_$area.txt -s $models_folder -m pointcnn_seg -x $setting > $models_folder/pointcnn_seg_$setting.txt 2>&1 &

@@ -6,16 +6,10 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import sys
 import h5py
-import random
-import tarfile
 import argparse
 import numpy as np
 from datetime import datetime
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import data_utils
 
 
 def main():

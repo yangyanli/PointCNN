@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import math
+
 num_class = 50
 
 sample_num = 2048
@@ -8,20 +10,23 @@ batch_size = 24
 
 num_epochs = 1024
 
-label_weights = []
+step_val = 2000
 
-for c in range(num_class):
-    label_weights.append(1.0)
+label_weights = [1.0] * num_class
 
-learning_rate_base = 0.01
+learning_rate_base = 1e-2
 decay_steps = 20000
-decay_rate = 0.9
-learning_rate_min = 0.00001
+decay_rate = 0.5
+learning_rate_min = 1e-5
 
 weight_decay = 0.0
 
-jitter = 0.001
+jitter = 0.0
 jitter_val = 0.0
+
+rotation_range = [math.pi / 72, math.pi / 72, math.pi / 72, 'u']
+rotation_range_val = [0, 0, 0, 'u']
+rotation_order = 'rxyz'
 
 scaling_range = [0.1, 0.1, 0.1, 'g']
 scaling_range_val = [0, 0, 0, 'u']
@@ -49,7 +54,7 @@ xdconv_params = [dict(zip(xdconv_param_name, xdconv_param)) for xdconv_param in
 
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
-             [(32 * x, 0.5),
+             [(32 * x, 0.0),
               (32 * x, 0.5)]]
 
 sampling = 'fps'

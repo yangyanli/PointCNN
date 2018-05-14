@@ -2,7 +2,9 @@
 
 gpu=
 setting=
-modelsFolder="../../models/seg/"
+models_folder="../../models/seg/"
+train_files="../../data/shapenet_partseg/train_val_files.txt"
+val_files="../../data/shapenet_partseg/test_files.txt"
 
 usage() { echo "train/val pointcnn_seg with -g gpu_id -x setting options"; }
 
@@ -37,11 +39,11 @@ then
   usage; exit;
 fi
 
-if [ ! -d "$modelsFolder" ]
+if [ ! -d "$models_folder" ]
 then
-  mkdir -p "$modelsFolder"
+  mkdir -p "$models_folder"
 fi
 
 
 echo "Train/Val with setting $setting on GPU $gpu!"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t ../../data/shapenet_partseg/train_val_files.txt -v ../../data/shapenet_partseg/test_files.txt -s ../../models/seg -m pointcnn_seg -x $setting > ../../models/seg/pointcnn_seg_$setting.txt 2>&1 &
+CUDA_VISIBLE_DEVICES=$gpu python3 ../train_val_seg.py -t $train_files -v $val_files -s $models_folder -m pointcnn_seg -x $setting > $models_folder/pointcnn_seg_$setting.txt 2>&1 &
