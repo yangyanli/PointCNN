@@ -90,8 +90,10 @@ class PointCNN:
                 qrs = self.layer_pts[-1]
             else:
                 if setting.sampling == 'fps':
-                    indices = tf_sampling.farthest_point_sample(P, pts)
-                    qrs = tf_sampling.gather_point(pts, indices)  # (N,P,3)
+                    fps_indices = tf_sampling.farthest_point_sample(P, pts)
+                    batch_indices = tf.tile(tf.reshape(tf.range(N), (-1, 1, 1)), (1, P, 1))
+                    indices = tf.concat([batch_indices, tf.expand_dims(fps_indices,-1)], axis=-1)
+                    qrs = tf.gather_nd(pts, indices, name= tag + 'qrs') # (N, P, 3)
                 elif setting.sampling == 'ids':
                     indices = pf.inverse_density_sampling(pts, K, P)
                     qrs = tf.gather_nd(pts, indices)
