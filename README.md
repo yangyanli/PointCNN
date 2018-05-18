@@ -204,3 +204,4 @@ Here we list the commands for training/evaluating PointCNN on classification and
   
   ## More PointCNN Implementations
   * <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
+  * <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation</a>
