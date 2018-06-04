@@ -124,7 +124,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ```
   cd data_conversions
   python3 ./download_datasets.py -d cifar10
-  python3 ./prepare_cifar10_data.py -f ../../data/cifar10
+  python3 ./prepare_cifar10_data.py
   cd ../pointcnn_cls
   ./train_val_cifar10.sh -g 0 -x cifar10_x3_l4
   ```
