@@ -9,9 +9,11 @@ batch_size = 16
 
 num_epochs = 1024
 
+label_weights = []
+
 label_weights = [1.0] * num_class
 
-learning_rate_base = 0.005
+learning_rate_base = 0.001
 decay_steps = 5000
 decay_rate = 0.8
 learning_rate_min = 1e-6
@@ -53,7 +55,7 @@ xdconv_params = [dict(zip(xdconv_param_name, xdconv_param)) for xdconv_param in
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
              [(32 * x, 0.0),
-              (32 * x, 0.5)]]
+              (32 * x, 0.7)]]
 
 sampling = 'fps'
 

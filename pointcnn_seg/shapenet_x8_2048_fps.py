@@ -1,34 +1,33 @@
 #!/usr/bin/python3
 
-import math
-
 num_class = 50
 
 sample_num = 2048
 
-batch_size = 24
+batch_size = 16
 
 num_epochs = 1024
 
-step_val = 2000
+label_weights = []
 
 label_weights = [1.0] * num_class
 
-learning_rate_base = 1e-2
+learning_rate_base = 0.005
 decay_steps = 20000
-decay_rate = 0.5
-learning_rate_min = 1e-5
+decay_rate = 0.9
+learning_rate_min = 0.00001
+step_val = 500
 
 weight_decay = 0.0
 
-jitter = 0.0
+jitter = 0.001
 jitter_val = 0.0
 
-rotation_range = [math.pi / 72, math.pi / 72, math.pi / 72, 'u']
+rotation_range = [0, 0, 0, 'u']
 rotation_range_val = [0, 0, 0, 'u']
 rotation_order = 'rxyz'
 
-scaling_range = [0.1, 0.1, 0.1, 'g']
+scaling_range = [0.0, 0.0, 0.0, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
 sample_num_variance = 1 // 8
@@ -47,7 +46,8 @@ with_global = True
 
 xdconv_param_name = ('K', 'D', 'pts_layer_idx', 'qrs_layer_idx')
 xdconv_params = [dict(zip(xdconv_param_name, xdconv_param)) for xdconv_param in
-                 [(16, 6, 3, 2),
+                 [(16, 6, 3, 3),
+                  (16, 6, 3, 2),
                   (12, 6, 2, 1),
                   (8, 6, 1, 0),
                   (8, 4, 0, 0)]]
