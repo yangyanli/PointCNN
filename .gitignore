@@ -1,7 +1,7 @@
 .idea
-arena/__pycache__/
 __pycache__/
-saver/
+saver*/
 sampling/
 data/
 *.pyc
+*.so

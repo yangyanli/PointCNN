@@ -16,10 +16,11 @@ FC3_inputs_shape = (16, 256)
 
 
 class Net:
-    def __init__(self, points, features,  num_class, is_training, setting):
+    def __init__(self, points, features, is_training, setting):
         bn_decay = setting.get_bn_decay(tf.train.get_global_step())
         l0_xyz = points
         l0_points = None
+        num_class = setting.num_class
 
         # Set abstraction layers
         l1_xyz, l1_points = pointnet_sa_module_msg(l0_xyz, l0_points, 512, [0.1, 0.2, 0.4], [32, 64, 128],
