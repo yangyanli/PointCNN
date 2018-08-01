@@ -17,7 +17,6 @@ learning_rate_base = 0.005
 decay_steps = 5000
 decay_rate = 0.8
 learning_rate_min = 1e-6
-step_val = 500
 
 weight_decay = 1e-8
 

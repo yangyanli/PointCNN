@@ -9,8 +9,6 @@ batch_size = 16
 
 num_epochs = 1024
 
-label_weights = []
-
 label_weights = [1.0] * num_class
 
 learning_rate_base = 0.001

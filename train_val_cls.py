@@ -269,7 +269,8 @@ def main():
                     sess.run([loss_mean_update_op, t_1_acc_update_op, t_1_per_class_acc_update_op],
                              feed_dict={
                                  handle: handle_val,
-                                 indices: pf.get_indices(batch_size_val, sample_num, point_num, pool_setting_val),
+                                 indices: pf.get_indices(batch_size_val, sample_num, point_num,
+                                                         ),
                                  xforms: xforms_np,
                                  rotations: rotations_np,
                                  jitter_range: np.array([jitter_val]),
@@ -321,7 +322,6 @@ def main():
                 sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
-
 
 if __name__ == '__main__':
     main()
