@@ -53,7 +53,7 @@ xdconv_params = [dict(zip(xdconv_param_name, xdconv_param)) for xdconv_param in
 fc_param_name = ('C', 'dropout_rate')
 fc_params = [dict(zip(fc_param_name, fc_param)) for fc_param in
              [(32 * x, 0.0),
-              (32 * x, 0.7)]]
+              (32 * x, 0.5)]]
 
 sampling = 'fps'
 
