@@ -7,6 +7,8 @@ Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>,<a href="h
 
 ## Introduction
 
+You can download pretrained models<a href="https://1drv.ms/f/s!AiHh4BK32df6gYFCzzpRz0nsJmQxSg" target="_blank"> here</a>.
+
 PointCNN is a simple and general framework for feature learning from point cloud, which refreshed five benchmark records in point cloud processing (as of Jan. 23, 2018), including:
 
 * classification accuracy on ModelNet40 (**91.7%**, with 1024 input points only)
