@@ -77,4 +77,4 @@ then
 fi
 
 echo "Test setting $setting on GPU $gpu with checkpoint $ckpt! with repeat $repeat"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/s3dis/val_files_Area_$area.txt -f ../../data/s3dis/Area1_data/ -c ../../data/s3dis/categories.txt -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
+CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/s3dis/val_files_Area_$area.txt -f ../../data/s3dis/Area${area}_data/  -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
