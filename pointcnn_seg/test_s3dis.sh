@@ -66,7 +66,7 @@ fi
 
 if [ $ckpt_flag -eq 0 ]
 then
-  echo "-l option is not presented!"
+  echo "-l option is not presented!"1
   usage; exit;
 fi
 
@@ -77,4 +77,8 @@ then
 fi
 
 echo "Test setting $setting on GPU $gpu with checkpoint $ckpt! with repeat $repeat"
+<<<<<<< 99c29f6ea409d5d51293fb1bdac9cec594635ccc
 CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/s3dis/val_files_Area_$area.txt -f ../../data/s3dis/Area${area}_data/  -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
+=======
+CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/s3dis/val_files_Area_$area.txt -f ../../data/s3dis/Area${area}_data/ -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
+>>>>>>> update semantic3d files
