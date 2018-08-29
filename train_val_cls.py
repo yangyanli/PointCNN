@@ -165,18 +165,17 @@ def main():
     net = model.Net(points=points_augmented, features=features_augmented, is_training=is_training, setting=setting)
     logits = net.logits
     probs = tf.nn.softmax(logits, name='probs')
-    _, predictions = tf.nn.top_k(probs, name='predictions')
+    predictions = tf.argmax(probs, axis=-1, name='predictions')
 
     labels_2d = tf.expand_dims(labels, axis=-1, name='labels_2d')
     labels_tile = tf.tile(labels_2d, (1, tf.shape(logits)[1]), name='labels_tile')
-
     loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_tile, logits=logits)
 
     with tf.name_scope('metrics'):
         loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
-        t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_tile, logits, 1)
+        t_1_acc_op, t_1_acc_update_op = tf.metrics.accuracy(labels_tile, predictions)
         t_1_per_class_acc_op, t_1_per_class_acc_update_op = tf.metrics.mean_per_class_accuracy(labels_tile,
-                                                                                               tf.squeeze(predictions, [-1]),
+                                                                                               predictions,
                                                                                                setting.num_class)
     reset_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
                                                  if var.name.split('/')[0] == 'metrics'])

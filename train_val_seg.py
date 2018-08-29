@@ -127,20 +127,20 @@ def main():
     net = model.Net(points_augmented, features_augmented, is_training, setting)
     logits = net.logits
     probs = tf.nn.softmax(logits, name='probs')
-    _, predictions = tf.nn.top_k(probs, name='predictions')
+    predictions = tf.argmax(probs, axis=-1, name='predictions')
 
     loss_op = tf.losses.sparse_softmax_cross_entropy(labels=labels_sampled, logits=logits,
                                                      weights=labels_weights_sampled)
 
     with tf.name_scope('metrics'):
         loss_mean_op, loss_mean_update_op = tf.metrics.mean(loss_op)
-        t_1_acc_op, t_1_acc_update_op = tf.metrics.precision_at_k(labels_sampled, logits, 1,
-                                                                  weights=labels_weights_sampled)
+        t_1_acc_op, t_1_acc_update_op = tf.metrics.accuracy(labels_sampled, predictions, weights=labels_weights_sampled)
         t_1_per_class_acc_op, t_1_per_class_acc_update_op = \
-            tf.metrics.mean_per_class_accuracy(labels_sampled, tf.squeeze(predictions, [-1]), setting.num_class,
+            tf.metrics.mean_per_class_accuracy(labels_sampled, predictions, setting.num_class,
                                                weights=labels_weights_sampled)
     reset_metrics_op = tf.variables_initializer([var for var in tf.local_variables()
                                                  if var.name.split('/')[0] == 'metrics'])
+
 
     _ = tf.summary.scalar('loss/train', tensor=loss_mean_op, collections=['train'])
     _ = tf.summary.scalar('t_1_acc/train', tensor=t_1_acc_op, collections=['train'])
