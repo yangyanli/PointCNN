@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--data_folder', '-d', help='Path to *.pts directory', required=True)
     parser.add_argument('--load_ckpt', '-l', help='Path to a check point file for load', required=True)
     parser.add_argument('--repeat_num', '-r', help='Repeat number', type=int, default=1)
-    parser.add_argument('--sample_num', help='Point sample num', type=int, default=1024)
+    parser.add_argument('--sample_num', help='Point sample num', type=int, default=2048)
     parser.add_argument('--model', '-m', help='Model to use', required=True)
     parser.add_argument('--setting', '-x', help='Setting to use', required=True)
     parser.add_argument('--save_ply', '-s', help='Save results as ply', action='store_true')
@@ -130,15 +130,15 @@ def main():
                 point_idx = indices_shuffle[idx]
                 probs = probs_2d[idx, label_start:label_end]
                 confidence = np.amax(probs)
-                label = np.argmax(probs)
+                seg_idx = np.argmax(probs)
                 if confidence > predictions[point_idx][1]:
-                    predictions[point_idx] = (label, confidence)
+                    predictions[point_idx] = (seg_idx, confidence)
 
             labels = []
             with open(output_filelist[batch_idx], 'w') as file_seg:
-                for label, _ in predictions:
-                    file_seg.write('%d\n' % (label))
-                    labels.append(label)
+                for seg_idx, _ in predictions:
+                    file_seg.write('%d\n' % (seg_idx))
+                    labels.append(seg_idx)
 
             # read the coordinates from the txt file for verification
             coordinates = [[float(value) for value in xyz.split(' ')]
