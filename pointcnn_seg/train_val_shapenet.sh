@@ -3,8 +3,8 @@
 gpu=
 setting=
 models_folder="../../models/seg/"
-train_files="../../data/shapenet_partseg/train_val_files.txt"
-val_files="../../data/shapenet_partseg/test_files.txt"
+train_files="../../data/shapenet_partseg/train_files.txt"
+val_files="../../data/shapenet_partseg/val_files.txt"
 
 usage() { echo "train/val pointcnn_seg with -g gpu_id -x setting options"; }
 
