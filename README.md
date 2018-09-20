@@ -3,7 +3,7 @@
 Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>,<a href="http://rbruibu.cn" target="_blank"> Rui Bu</a>, <a href="http://www.mcsun.cn" target="_blank">Mingchao Sun</a>, <a href="https://www.weiwu35.com/" target="_blank">Wei Wu</a>, and <a href="http://www.cs.sdu.edu.cn/~baoquan/" target="_blank">Baoquan Chen</a> from Shandong University.
 
 
-**Yangyan, Rui, Mingchao and Wei are working on 3D perception for autonomous driving in Alibaba AI Labs. Join us for making the world a better place!**
+**Yangyan, Rui, Mingchao and Wei are hired by Alibaba AI Labs, working on 3D perception for autonomous driving. Join us for making the world a better place!**
 
 ## Introduction
 You can download pretrained models<a href="https://1drv.ms/f/s!AiHh4BK32df6gYFCzzpRz0nsJmQxSg" target="_blank"> here</a>.
@@ -146,6 +146,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd data_conversions
   python3 ./download_datasets.py -d shapenet_partseg
   python3 ./prepare_partseg_data.py -f ../../data/shapenet_partseg
+  cat ../../data/shapenet_partseg/train_files.txt ../../data/shapenet_partseg/val_files.txt > ../../data/shapenet_partseg/train_val_files.txt
   cd ../pointcnn_seg
   ./train_val_shapenet.sh -g 0 -x shapenet_x8_2048_fps
   ./test_shapenet.sh -g 0 -x shapenet_x8_2048_fps -l ../../models/seg/pointcnn_seg_shapenet_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 10
