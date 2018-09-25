@@ -80,7 +80,7 @@ def main():
         filenames = [os.path.join(folder, line.strip()) for line in open(args.filelist)]
         for filename in filenames:
             print('{}-Reading {}...'.format(datetime.now(), filename))
-            data_h5 = h5py.File(os.path.join(folder, filename))
+            data_h5 = h5py.File(filename)
             data = data_h5['data'][...].astype(np.float32)
             data_num = data_h5['data_num'][...].astype(np.int32)
             batch_num = data.shape[0]
