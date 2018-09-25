@@ -65,4 +65,4 @@ then
 fi
 
 echo "Test setting $setting on GPU $gpu with checkpoint $ckpt! with repeat $repeat"
-CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/scannet/seg/val_files.txt -f ../../data/scannet/seg/val_data  -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
+CUDA_VISIBLE_DEVICES=$gpu python3 ../test_general_seg.py -t ../../data/scannet/seg/test_files.txt -l $ckpt -m pointcnn_seg -x $setting -r $repeat $save_ply
