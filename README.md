@@ -180,7 +180,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ./train_val_scannet.sh -g 0 -x scannet_x8_2048_k8_fps
   ./test_scannet.sh -g 0 -x scannet_x8_2048_k8_fps -l ../../models/seg/pointcnn_seg_scannet_x8_2048_k8_fps_xxxx/ckpts/iter-xxxxx -r 4
   cd ../evaluation
-  python3 eval_scannet.py
+  python3 eval_scannet.py -d <path to *_pred.h5> -p <path to scannet_test.pickle>
   ```
   * #### Semantic3D
   ```
@@ -208,4 +208,5 @@ Here we list the commands for training/evaluating PointCNN on classification and
   
   ## More PointCNN Implementations
   * <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
-  * <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation</a>
+  
+  * <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation</a>
