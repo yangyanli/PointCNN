@@ -61,8 +61,6 @@ def main():
     net = model.Net(points_sampled, features_sampled, is_training, setting)
     seg_probs_op = tf.nn.softmax(net.logits, name='seg_probs')
 
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-
     # for restore model
     saver = tf.train.Saver()
 
@@ -101,7 +99,7 @@ def main():
                 indices_batch_shuffle = np.reshape(indices_shuffle, (batch_size, sample_num, 1))
                 indices_batch = np.concatenate((indices_batch_indices, indices_batch_shuffle), axis=2)
 
-                _, seg_probs = sess.run([update_ops, seg_probs_op],
+                seg_probs = sess.run([seg_probs_op],
                                         feed_dict={
                                             pts_fts: points_batch,
                                             indices: indices_batch,
