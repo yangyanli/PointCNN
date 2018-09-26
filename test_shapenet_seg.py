@@ -92,8 +92,7 @@ def main():
     net = model.Net(points_sampled, features_sampled, is_training, setting)
     logits = net.logits
     probs_op = tf.nn.softmax(logits, name='probs')
-
-    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    
     saver = tf.train.Saver()
 
     parameter_num = np.sum([np.prod(v.shape.as_list()) for v in tf.trainable_variables()])
@@ -118,7 +117,7 @@ def main():
             indices_batch_shuffle = np.reshape(indices_shuffle, (batch_size, sample_num, 1))
             indices_batch = np.concatenate((indices_batch_indices, indices_batch_shuffle), axis=2)
 
-            _, probs = sess.run([update_ops, probs_op],
+            probs = sess.run([probs_op],
                                 feed_dict={
                                     pts_fts: points_batch,
                                     indices: indices_batch,
