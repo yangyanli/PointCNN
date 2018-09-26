@@ -37,7 +37,7 @@ def main():
     data_num = np.zeros((batch_size), dtype=np.int32)
     label = np.zeros((batch_size), dtype=np.int32)
     label_seg = np.zeros((batch_size, max_point_num), dtype=np.int32)
-    indices_split_to_full = np.zeros((batch_size, max_point_num), dtype=np.int32)
+    indices_split_to_full = np.zeros((batch_size, max_point_num, 2), dtype=np.int32)
 
     datasets = ['train', 'test']
     for dataset_idx, dataset in enumerate(datasets):
@@ -162,7 +162,10 @@ def main():
                         data_num[idx_in_batch] = point_num
                         label[idx_in_batch] = dataset_idx  # won't be used...
                         label_seg[idx_in_batch, 0:point_num] = block_labels[start:end]
-                        indices_split_to_full[idx_in_batch, 0:point_num] = point_indices[start:end]
+
+                        ind_in_room = point_indices[start:end]
+                        indices_split_to_full[idx_in_batch, 0:point_num] = np.stack([np.zeros_like(ind_in_room) + room_idx ,ind_in_room], -1)
+                            
 
                         if ((idx + 1) % batch_size == 0) \
                                 or (room_idx == len(xyz_all) - 1
