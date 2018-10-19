@@ -106,7 +106,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x3_l4
   ```
 
-  * #### quick_darw
+  * #### quick_draw
   Note that the training/evaluation of quick_draw requires LARGE RAM, as we load all stokes into RAM and converting them into point cloud on-the-fly.
   ```
   cd data_conversions
