@@ -9,7 +9,7 @@ PointCNN is a simple and general framework for feature learning from point cloud
 * classification accuracy on ModelNet40 (**91.7%**, with 1024 input points only)
 * classification accuracy on ScanNet (**77.9%**)
 * segmentation part averaged IoU on ShapeNet Parts (**86.13%**)
-* segmentation mean IoU on S3DIS (**62.74%**)
+* segmentation mean IoU on S3DIS (**65.39%**)
 * per voxel labelling accuracy on ScanNet (**85.1%**)
 
 See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">preprint on arXiv</a> for more details.
