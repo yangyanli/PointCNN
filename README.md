@@ -184,6 +184,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   mkdir ../../data/semantic3d/val
   mv ../../data/semantic3d/train/bildstein_station3_xyz_intensity_rgb.* ../../data/semantic3d/train/domfountain_station2_xyz_intensity_rgb.* ../../data/semantic3d/train/sg27_station4_intensity_rgb.* ../../data/semantic3d/train/untermaederbrunnen_station3_xyz_intensity_rgb.* ../../data/semantic3d/val
   python3 prepare_semantic3d_data.py
+  mkdir ../../data/semantic3d/filelists
   python3 prepare_semantic3d_filelists.py
   cd ../pointcnn_seg
   ./train_val_semantic3d.sh -g 0 -x semantic3d_x4_2048_fps
