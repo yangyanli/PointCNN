@@ -10,18 +10,18 @@ from matplotlib import cm
 
 
 def save_ply(points, filename, colors=None, normals=None):
-    vertex = np.array([tuple(p) for p in points], dtype=[('x', 'f4'), ('y', 'f4'), ('z', 'f4')])
+    vertex = np.core.records.fromarrays(points.transpose(), names='x, y, z', formats='f4, f4, f4')
     n = len(vertex)
     desc = vertex.dtype.descr
 
     if normals is not None:
-        vertex_normal = np.array([tuple(n) for n in normals], dtype=[('nx', 'f4'), ('ny', 'f4'), ('nz', 'f4')])
+        vertex_normal = np.core.records.fromarrays(normals.transpose(), names='nx, ny, nz', formats='f4, f4, f4')
         assert len(vertex_normal) == n
         desc = desc + vertex_normal.dtype.descr
 
     if colors is not None:
-        vertex_color = np.array([tuple(c * 255) for c in colors],
-                                dtype=[('red', 'u1'), ('green', 'u1'), ('blue', 'u1')])
+        vertex_color = np.core.records.fromarrays(colors.transpose() * 255, names='red, green, blue',
+                                                  formats='u1, u1, u1')
         assert len(vertex_color) == n
         desc = desc + vertex_color.dtype.descr
 
