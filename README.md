@@ -106,7 +106,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd data_conversions
   python3 ./download_datasets.py -d quick_draw
   cd ../pointcnn_cls
-  ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x4_l4
+  ./train_val_quick_draw.sh -g 0 -x quick_draw_full_x2_l6
   ```
 
   * #### MNIST
