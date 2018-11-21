@@ -35,7 +35,7 @@ jitter_val = 0.0
 
 rotation_range = [0, math.pi / 12, [0, math.pi], 'g']
 rotation_range_val = [0, 0, 0, 'u']
-order = 'rzyx'
+rotation_order = 'rzyx'
 
 scaling_range = [0.15, [0.01], 0.15, 'g']
 scaling_range_val = [0, [0.01], 0, 'u']
