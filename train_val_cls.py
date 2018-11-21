@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--save_folder', '-s', help='Path to folder for saving check points and summary', required=True)
     parser.add_argument('--model', '-m', help='Model to use', required=True)
     parser.add_argument('--setting', '-x', help='Setting to use', required=True)
+    parser.add_argument('--log', help='Log to FILE in save folder; use - for stdout (default is log.txt)', metavar='FILE', default='log.txt')
     args = parser.parse_args()
 
     time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
@@ -34,7 +35,8 @@ def main():
     if not os.path.exists(root_folder):
         os.makedirs(root_folder)
 
-    sys.stdout = open(os.path.join(root_folder, 'log.txt'), 'w')
+    if args.log != '-':
+        sys.stdout = open(os.path.join(root_folder, args.log), 'w')
 
     print('PID:', os.getpid())
 
