@@ -93,9 +93,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ```
   cd data_conversions
   python3 ./download_datasets.py -d tu_berlin
-  python3 ./prepare_tu_berlin_data.py -f ../../data/tu_berlin/ -a
-  cat ../../data/tu_berlin/fold_1_*.txt ../../data/tu_berlin/fold_0_*.txt > ../../data/tu_berlin/train_files.txt
-  cat ../../data/tu_berlin/fold_2_files.txt > ../../data/tu_berlin/test_files.txt
+  python3 ./prepare_tu_berlin_data.py -f ../../data/tu_berlin/ -a --create-train-test
   cd ../pointcnn_cls
   ./train_val_tu_berlin.sh -g 0 -x tu_berlin_x3_l4
   ```
