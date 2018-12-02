@@ -1,4 +1,4 @@
-# PointCNN: Convolution On X-Transformed Points (NIPS 2018)
+# PointCNN: Convolution On X-Transformed Points (NeurIPS 2018)
 
 Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>, Rui Bu, Mingchao Sun, Wei Wu, Xinhan Di, and Baoquan Chen.
 
