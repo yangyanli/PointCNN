@@ -1,4 +1,4 @@
-# PointCNN: Convolution On X-Transformed Points (NeurIPS 2018)
+# PointCNN: Convolution On X-Transformed Points
 
 Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>, Rui Bu, Mingchao Sun, Wei Wu, Xinhan Di, and Baoquan Chen.
 
@@ -12,7 +12,7 @@ PointCNN is a simple and general framework for feature learning from point cloud
 * segmentation mean IoU on S3DIS (**65.39%**)
 * per voxel labelling accuracy on ScanNet (**85.1%**)
 
-See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">preprint on arXiv</a> for more details.
+See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">preprint on arXiv</a> (accepted to NeurIPS 2018) for more details.
 
 Pretrained models can be downloaded from <a href="https://1drv.ms/f/s!AiHh4BK32df6gYFCzzpRz0nsJmQxSg" target="_blank">here</a>.
 
