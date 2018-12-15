@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--epochs', help='Number of training epochs (default defined in setting)', type=int)
     parser.add_argument('--batch_size', help='Batch size (default defined in setting)', type=int)
     parser.add_argument('--no_timestamp_folder', help='Dont save to timestamp folder', action='store_true')
+    parser.add_argument('--no_code_backup', help='Dont backup code', action='store_true')
     args = parser.parse_args()
 
     if not args.no_timestamp_folder:
@@ -212,8 +213,9 @@ def main():
     saver = tf.train.Saver(max_to_keep=None)
 
     # backup all code
-    code_folder = os.path.abspath(os.path.dirname(__file__))
-    shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
+    if not args.no_code_backup:
+        code_folder = os.path.abspath(os.path.dirname(__file__))
+        shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
 
     folder_ckpt = os.path.join(root_folder, 'ckpts')
     if not os.path.exists(folder_ckpt):
