@@ -239,6 +239,13 @@ def main():
         if args.load_ckpt is not None:
             saver.restore(sess, args.load_ckpt)
             print('{}-Checkpoint loaded from {}!'.format(datetime.now(), args.load_ckpt))
+        else:
+            latest_ckpt = tf.train.latest_checkpoint(folder_ckpt)
+            if latest_ckpt:
+                print('{}-Found checkpoint {}'.format(datetime.now(), latest_ckpt))
+                saver.restore(sess, latest_ckpt)
+                print('{}-Checkpoint loaded from {} (Iter {})'.format(
+                    datetime.now(), latest_ckpt, sess.run(global_step)))
 
         handle_train = sess.run(iterator_train.string_handle())
         handle_val = sess.run(iterator_val.string_handle())
@@ -283,9 +290,9 @@ def main():
                                  jitter_range: np.array([jitter_val]),
                                  is_training: False,
                              })
-                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val = sess.run(
-                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op])
-                summary_writer.add_summary(summaries_val, batch_idx_train)
+                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val, step = sess.run(
+                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op, global_step])
+                summary_writer.add_summary(summaries_val, step)
                 print('{}-[Val  ]-Average:      Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
                       .format(datetime.now(), loss_val, t_1_acc_val, t_1_per_class_acc_val))
                 sys.stdout.flush()
@@ -319,13 +326,14 @@ def main():
                          is_training: True,
                      })
             if batch_idx_train % 10 == 0:
-                loss, t_1_acc, t_1_per_class_acc, summaries = sess.run([loss_mean_op,
+                loss, t_1_acc, t_1_per_class_acc, summaries, step = sess.run([loss_mean_op,
                                                                         t_1_acc_op,
                                                                         t_1_per_class_acc_op,
-                                                                        summaries_op])
-                summary_writer.add_summary(summaries, batch_idx_train)
+                                                                        summaries_op,
+                                                                        global_step])
+                summary_writer.add_summary(summaries, step)
                 print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
-                      .format(datetime.now(), batch_idx_train, loss, t_1_acc, t_1_per_class_acc))
+                      .format(datetime.now(), step, loss, t_1_acc, t_1_per_class_acc))
                 sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
