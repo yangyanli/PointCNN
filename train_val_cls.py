@@ -29,10 +29,14 @@ def main():
     parser.add_argument('--setting', '-x', help='Setting to use', required=True)
     parser.add_argument('--epochs', help='Number of training epochs (default defined in setting)', type=int)
     parser.add_argument('--batch_size', help='Batch size (default defined in setting)', type=int)
+    parser.add_argument('--no_timestamp_folder', help='Dont save to timestamp folder', action='store_true')
     args = parser.parse_args()
 
-    time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
+    if not args.no_timestamp_folder:
+        time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
+    else:
+        root_folder = args.save_folder
     if not os.path.exists(root_folder):
         os.makedirs(root_folder)
 
