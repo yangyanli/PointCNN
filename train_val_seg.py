@@ -27,14 +27,23 @@ def main():
     parser.add_argument('--save_folder', '-s', help='Path to folder for saving check points and summary', required=True)
     parser.add_argument('--model', '-m', help='Model to use', required=True)
     parser.add_argument('--setting', '-x', help='Setting to use', required=True)
+    parser.add_argument('--epochs', help='Number of training epochs (default defined in setting)', type=int)
+    parser.add_argument('--batch_size', help='Batch size (default defined in setting)', type=int)
+    parser.add_argument('--log', help='Log to FILE in save folder; use - for stdout (default is log.txt)', metavar='FILE', default='log.txt')
+    parser.add_argument('--no_timestamp_folder', help='Dont save to timestamp folder', action='store_true')
+    parser.add_argument('--no_code_backup', help='Dont backup code', action='store_true')
     args = parser.parse_args()
 
-    time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
+    if not args.no_timestamp_folder:
+        time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
+    else:
+        root_folder = args.save_folder
     if not os.path.exists(root_folder):
         os.makedirs(root_folder)
 
-    sys.stdout = open(os.path.join(root_folder, 'log.txt'), 'w')
+    if args.log != '-':
+        sys.stdout = open(os.path.join(root_folder, args.log), 'w')
 
     print('PID:', os.getpid())
 
@@ -45,8 +54,8 @@ def main():
     sys.path.append(setting_path)
     setting = importlib.import_module(args.setting)
 
-    num_epochs = setting.num_epochs
-    batch_size = setting.batch_size
+    num_epochs = args.epochs or setting.num_epochs
+    batch_size = args.batch_size or setting.batch_size
     sample_num = setting.sample_num
     step_val = setting.step_val
     label_weights_list = setting.label_weights
@@ -168,8 +177,9 @@ def main():
     saver = tf.train.Saver(max_to_keep=None)
 
     # backup all code
-    code_folder = os.path.abspath(os.path.dirname(__file__))
-    shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
+    if not args.no_code_backup:
+        code_folder = os.path.abspath(os.path.dirname(__file__))
+        shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
 
     folder_ckpt = os.path.join(root_folder, 'ckpts')
     if not os.path.exists(folder_ckpt):
