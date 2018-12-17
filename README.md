@@ -138,7 +138,6 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd data_conversions
   python3 ./download_datasets.py -d shapenet_partseg
   python3 ./prepare_partseg_data.py -f ../../data/shapenet_partseg
-  cat ../../data/shapenet_partseg/train_files.txt ../../data/shapenet_partseg/val_files.txt > ../../data/shapenet_partseg/train_val_files.txt
   cd ../pointcnn_seg
   ./train_val_shapenet.sh -g 0 -x shapenet_x8_2048_fps
   ./test_shapenet.sh -g 0 -x shapenet_x8_2048_fps -l ../../models/seg/pointcnn_seg_shapenet_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 10
@@ -190,16 +189,16 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd ../evaluation
   python3 semantic3d_merge.py -d <path to *_pred.h5> -v <reduced or full>
   ```
-  
+
 * ### Tensorboard
   If you want to moniter your train step, we recommand you use following command
   ```
   cd <your path>/PointCNN
   tensorboard --logdir=../models/<seg/cls> <--port=6006>
   ```
-  
-  
+
+
   ## More PointCNN Implementations
   * <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
-  
+
   * <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation</a>
