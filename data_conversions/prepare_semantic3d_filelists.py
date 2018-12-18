@@ -29,23 +29,41 @@ def main():
         split_filelists[split] = ['./%s/%s\n' % (split, filename) for filename in os.listdir(os.path.join(root, split))
                                   if filename.endswith('.h5')]
 
-    train_val_h5 = split_filelists['train'] + split_filelists['val']
-    random.shuffle(train_val_h5)
-    train_val_list = os.path.join(root, 'train_val_files.txt')
-    print('{}-Saving {}...'.format(datetime.now(), train_val_list))
-    with open(train_val_list, 'w') as filelist:
-        list_num = math.ceil(len(train_val_h5) / args.h5_num)
+    train_h5 = split_filelists['train'] 
+    random.shuffle(train_h5)
+    train_list = os.path.join(root, 'train_data_files.txt')
+    print('{}-Saving {}...'.format(datetime.now(), train_list))
+    with open(train_list, 'w') as filelist:
+        list_num = math.ceil(len(train_h5) / args.h5_num)
         for list_idx in range(list_num):
-            train_val_list_i = os.path.join(root, 'filelists', 'train_val_files_g_%d.txt' % list_idx)
-            with open(train_val_list_i, 'w') as filelist_i:
+            train_list_i = os.path.join(root, 'filelists', 'train_files_g_%d.txt' % list_idx)
+            with open(train_list_i, 'w') as filelist_i:
                 for h5_idx in range(args.h5_num):
                     filename_idx = list_idx * args.h5_num + h5_idx
-                    if filename_idx > len(train_val_h5) - 1:
+                    if filename_idx > len(train_h5) - 1:
                         break
-                    filename_h5 = train_val_h5[filename_idx]
+                    filename_h5 = train_h5[filename_idx]
                     filelist_i.write('../' + filename_h5)
             for repeat_idx in range(args.repeat_num):
-                filelist.write('./filelists/train_val_files_g_%d.txt\n' % list_idx)
+                filelist.write('./filelists/train_files_g_%d.txt\n' % list_idx)
+
+    val_h5 = split_filelists['val']
+    random.shuffle(val_h5)
+    val_list = os.path.join(root, 'val_data_files.txt')
+    print('{}-Saving {}...'.format(datetime.now(), val_list))
+    with open(val_list, 'w') as filelist:
+        list_num = math.ceil(len(val_h5) / args.h5_num)
+        for list_idx in range(list_num):
+            val_list_i = os.path.join(root, 'filelists', 'val_files_g_%d.txt' % list_idx)
+            with open(val_list_i, 'w') as filelist_i:
+                for h5_idx in range(args.h5_num):
+                    filename_idx = list_idx * args.h5_num + h5_idx
+                    if filename_idx > len(val_h5) - 1:
+                        break
+                    filename_h5 = val_h5[filename_idx]
+                    filelist_i.write('../' + filename_h5)
+            for repeat_idx in range(args.repeat_num):
+                filelist.write('./filelists/val_files_g_%d.txt\n' % list_idx)
 
     test_h5 = split_filelists['test']
     test_list = os.path.join(root, 'test_files.txt')
