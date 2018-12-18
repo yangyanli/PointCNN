@@ -42,6 +42,10 @@ def main():
         folder = os.path.join(root, 'Area_%d' % area_idx)
         datasets = [dataset for dataset in os.listdir(folder)]
         for dataset_idx, dataset in enumerate(datasets):
+            dataset_marker = os.path.join(folder, dataset, ".dataset")
+            if os.path.exists(dataset_marker):
+                print('{}-{}/{} already processed, skipping'.format(datetime.now(), folder, dataset))
+                continue
             filename_data = os.path.join(folder, dataset, 'xyzrgb.npy')
             print('{}-Loading {}...'.format(datetime.now(), filename_data))
             xyzrgb = np.load(filename_data)
@@ -196,6 +200,8 @@ def main():
                             idx_h5 = idx_h5 + 1
                         idx = idx + 1
 
+            # Marker indicating we've processed this dataset
+            open(dataset_marker, "w").close()
 
 if __name__ == '__main__':
     main()
