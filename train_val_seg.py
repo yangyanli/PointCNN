@@ -203,12 +203,19 @@ def main():
         if args.load_ckpt is not None:
             saver.restore(sess, args.load_ckpt)
             print('{}-Checkpoint loaded from {}!'.format(datetime.now(), args.load_ckpt))
+        else:
+            latest_ckpt = tf.train.latest_checkpoint(folder_ckpt)
+            if latest_ckpt:
+                print('{}-Found checkpoint {}'.format(datetime.now(), latest_ckpt))
+                saver.restore(sess, latest_ckpt)
+                print('{}-Checkpoint loaded from {} (Iter {})'.format(
+                    datetime.now(), latest_ckpt, sess.run(global_step)))
 
         for batch_idx_train in range(batch_num):
+            ######################################################################
+            # Validation
             if (batch_idx_train % step_val == 0 and (batch_idx_train != 0 or args.load_ckpt is not None)) \
                     or batch_idx_train == batch_num - 1:
-                ######################################################################
-                # Validation
                 filename_ckpt = os.path.join(folder_ckpt, 'iter')
                 saver.save(sess, filename_ckpt, global_step=global_step)
                 print('{}-Checkpoint saved to {}!'.format(datetime.now(), filename_ckpt))
@@ -238,14 +245,13 @@ def main():
                                  labels_weights: weights_batch,
                                  is_training: False,
                              })
-
-                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val = sess.run(
-                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op])
-                summary_writer.add_summary(summaries_val, batch_idx_train)
+                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val, step = sess.run(
+                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op, global_step])
+                summary_writer.add_summary(summaries_val, step)
                 print('{}-[Val  ]-Average:      Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
                       .format(datetime.now(), loss_val, t_1_acc_val, t_1_per_class_acc_val))
                 sys.stdout.flush()
-                ######################################################################
+            ######################################################################
 
             ######################################################################
             # Training
@@ -289,17 +295,17 @@ def main():
                          is_training: True,
                      })
             if batch_idx_train % 10 == 0:
-                loss, t_1_acc, t_1_per_class_acc, summaries = sess.run([loss_mean_op,
+                loss, t_1_acc, t_1_per_class_acc, summaries, step = sess.run([loss_mean_op,
                                                                         t_1_acc_op,
                                                                         t_1_per_class_acc_op,
-                                                                        summaries_op])
-                summary_writer.add_summary(summaries, batch_idx_train)
+                                                                        summaries_op,
+                                                                        global_step])
+                summary_writer.add_summary(summaries, step)
                 print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
-                      .format(datetime.now(), batch_idx_train, loss, t_1_acc, t_1_per_class_acc))
+                      .format(datetime.now(), step, loss, t_1_acc, t_1_per_class_acc))
                 sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
-
 
 if __name__ == '__main__':
     main()
