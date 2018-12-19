@@ -5,3 +5,7 @@ sampling/
 data/
 *.pyc
 *.so
+env/
+build/
+dist/
+*.egg-info
