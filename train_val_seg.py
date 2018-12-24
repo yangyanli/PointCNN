@@ -27,14 +27,23 @@ def main():
     parser.add_argument('--save_folder', '-s', help='Path to folder for saving check points and summary', required=True)
     parser.add_argument('--model', '-m', help='Model to use', required=True)
     parser.add_argument('--setting', '-x', help='Setting to use', required=True)
+    parser.add_argument('--epochs', help='Number of training epochs (default defined in setting)', type=int)
+    parser.add_argument('--batch_size', help='Batch size (default defined in setting)', type=int)
+    parser.add_argument('--log', help='Log to FILE in save folder; use - for stdout (default is log.txt)', metavar='FILE', default='log.txt')
+    parser.add_argument('--no_timestamp_folder', help='Dont save to timestamp folder', action='store_true')
+    parser.add_argument('--no_code_backup', help='Dont backup code', action='store_true')
     args = parser.parse_args()
 
-    time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
+    if not args.no_timestamp_folder:
+        time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        root_folder = os.path.join(args.save_folder, '%s_%s_%s_%d' % (args.model, args.setting, time_string, os.getpid()))
+    else:
+        root_folder = args.save_folder
     if not os.path.exists(root_folder):
         os.makedirs(root_folder)
 
-    sys.stdout = open(os.path.join(root_folder, 'log.txt'), 'w')
+    if args.log != '-':
+        sys.stdout = open(os.path.join(root_folder, args.log), 'w')
 
     print('PID:', os.getpid())
 
@@ -45,8 +54,8 @@ def main():
     sys.path.append(setting_path)
     setting = importlib.import_module(args.setting)
 
-    num_epochs = setting.num_epochs
-    batch_size = setting.batch_size
+    num_epochs = args.epochs or setting.num_epochs
+    batch_size = args.batch_size or setting.batch_size
     sample_num = setting.sample_num
     step_val = setting.step_val
     label_weights_list = setting.label_weights
@@ -168,8 +177,9 @@ def main():
     saver = tf.train.Saver(max_to_keep=None)
 
     # backup all code
-    code_folder = os.path.abspath(os.path.dirname(__file__))
-    shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
+    if not args.no_code_backup:
+        code_folder = os.path.abspath(os.path.dirname(__file__))
+        shutil.copytree(code_folder, os.path.join(root_folder, os.path.basename(code_folder)))
 
     folder_ckpt = os.path.join(root_folder, 'ckpts')
     if not os.path.exists(folder_ckpt):
@@ -193,12 +203,19 @@ def main():
         if args.load_ckpt is not None:
             saver.restore(sess, args.load_ckpt)
             print('{}-Checkpoint loaded from {}!'.format(datetime.now(), args.load_ckpt))
+        else:
+            latest_ckpt = tf.train.latest_checkpoint(folder_ckpt)
+            if latest_ckpt:
+                print('{}-Found checkpoint {}'.format(datetime.now(), latest_ckpt))
+                saver.restore(sess, latest_ckpt)
+                print('{}-Checkpoint loaded from {} (Iter {})'.format(
+                    datetime.now(), latest_ckpt, sess.run(global_step)))
 
         for batch_idx_train in range(batch_num):
+            ######################################################################
+            # Validation
             if (batch_idx_train % step_val == 0 and (batch_idx_train != 0 or args.load_ckpt is not None)) \
                     or batch_idx_train == batch_num - 1:
-                ######################################################################
-                # Validation
                 filename_ckpt = os.path.join(folder_ckpt, 'iter')
                 saver.save(sess, filename_ckpt, global_step=global_step)
                 print('{}-Checkpoint saved to {}!'.format(datetime.now(), filename_ckpt))
@@ -228,14 +245,13 @@ def main():
                                  labels_weights: weights_batch,
                                  is_training: False,
                              })
-
-                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val = sess.run(
-                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op])
-                summary_writer.add_summary(summaries_val, batch_idx_train)
+                loss_val, t_1_acc_val, t_1_per_class_acc_val, summaries_val, step = sess.run(
+                    [loss_mean_op, t_1_acc_op, t_1_per_class_acc_op, summaries_val_op, global_step])
+                summary_writer.add_summary(summaries_val, step)
                 print('{}-[Val  ]-Average:      Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
                       .format(datetime.now(), loss_val, t_1_acc_val, t_1_per_class_acc_val))
                 sys.stdout.flush()
-                ######################################################################
+            ######################################################################
 
             ######################################################################
             # Training
@@ -279,17 +295,17 @@ def main():
                          is_training: True,
                      })
             if batch_idx_train % 10 == 0:
-                loss, t_1_acc, t_1_per_class_acc, summaries = sess.run([loss_mean_op,
+                loss, t_1_acc, t_1_per_class_acc, summaries, step = sess.run([loss_mean_op,
                                                                         t_1_acc_op,
                                                                         t_1_per_class_acc_op,
-                                                                        summaries_op])
-                summary_writer.add_summary(summaries, batch_idx_train)
+                                                                        summaries_op,
+                                                                        global_step])
+                summary_writer.add_summary(summaries, step)
                 print('{}-[Train]-Iter: {:06d}  Loss: {:.4f}  T-1 Acc: {:.4f}  T-1 mAcc: {:.4f}'
-                      .format(datetime.now(), batch_idx_train, loss, t_1_acc, t_1_per_class_acc))
+                      .format(datetime.now(), step, loss, t_1_acc, t_1_per_class_acc))
                 sys.stdout.flush()
             ######################################################################
         print('{}-Done!'.format(datetime.now()))
-
 
 if __name__ == '__main__':
     main()
