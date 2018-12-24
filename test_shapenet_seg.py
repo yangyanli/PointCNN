@@ -31,9 +31,9 @@ def main():
     print(args)
 
     model = importlib.import_module(args.model)
-    sys.path.append(os.path.dirname(args.setting))
-    print(os.path.dirname(args.setting))
-    setting = importlib.import_module(os.path.basename(args.setting))
+    setting_path = os.path.join(os.path.dirname(__file__), args.model)
+    sys.path.append(setting_path)
+    setting = importlib.import_module(args.setting)
 
     sample_num = setting.sample_num
 
@@ -92,7 +92,7 @@ def main():
     net = model.Net(points_sampled, features_sampled, is_training, setting)
     logits = net.logits
     probs_op = tf.nn.softmax(logits, name='probs')
-    
+
     saver = tf.train.Saver()
 
     parameter_num = np.sum([np.prod(v.shape.as_list()) for v in tf.trainable_variables()])
