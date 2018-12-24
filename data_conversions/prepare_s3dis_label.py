@@ -3,9 +3,24 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import argparse
 import os
 import numpy as np
-BASE_DIR = os.path.join(os.path.dirname(__file__),'../../../data/Stanford3dDataset_v1.2_Aligned_Version')
+
+DEFAULT_DATA_DIR = '../../data/Stanford3dDataset_v1.2_Aligned_Version'
+DEFAULT_OUTPUT_DIR = '../../data/S3DIS/prepare_label_rgb'
+
+p = argparse.ArgumentParser()
+p.add_argument(
+    "-d", "--data", dest='data_dir',
+    default=DEFAULT_DATA_DIR,
+    help="Path to S3DIS data (default is %s)" % DEFAULT_DATA_DIR)
+p.add_argument(
+    "-f", "--folder", dest='output_dir',
+    default=DEFAULT_OUTPUT_DIR,
+    help="Folder to write labels (default is %s)" % DEFAULT_OUTPUT_DIR)
+
+args = p.parse_args()
 
 object_dict = {
             'clutter':   0,
@@ -22,36 +37,51 @@ object_dict = {
             'bookcase': 11,
             'board':    12}
 
-path_Dir_Areas =  os.listdir(BASE_DIR)
+path_dir_areas =  os.listdir(args.data_dir)
 
-for Area in path_Dir_Areas:
-    path_Dir_Rooms = os.listdir(os.path.join(BASE_DIR,Area))
-    for Room in path_Dir_Rooms:
-        xyz_Room = np.zeros((1,6))
-        label_Room = np.zeros((1,1))
-        path_Annotations = os.path.join(BASE_DIR,Area,Room,"Annotations")
-        print(path_Annotations)
+for area in path_dir_areas:
+    path_area = os.path.join(args.data_dir, area)
+    if not os.path.isdir(path_area):
+        continue
+    path_dir_rooms = os.listdir(path_area)
+    for room in path_dir_rooms:
+        path_annotations = os.path.join(args.data_dir, area, room, "Annotations")
+        if not os.path.isdir(path_annotations):
+            continue
+        print(path_annotations)
+        path_prepare_label = os.path.join(args.output_dir, area, room)
+        if os.path.exists(os.path.join(path_prepare_label, ".labels")):
+            print("%s already processed, skipping" % path_prepare_label)
+            continue
+        xyz_room = np.zeros((1,6))
+        label_room = np.zeros((1,1))
         # make store directories
-        path_prepare_label = os.path.join("../../../data/S3DIS/prepare_label_rgb",Area,Room)
         if not os.path.exists(path_prepare_label):
             os.makedirs(path_prepare_label)
         #############################
-        path_objects = os.listdir(path_Annotations)
-        for Object in path_objects:
-            if object_dict.has_key(Object.split("_",1)[0]):
-                print(Object.split("_",1)[0] + " value:" ,object_dict[Object.split("_",1)[0]])
-                xyz_object = np.loadtxt(os.path.join(path_Annotations,Object))[:,:]#(N,6)
-                label_object = np.tile([object_dict[Object.split("_",1)[0]]],(xyz_object.shape[0],1))#(N,1)
-            else:
+        path_objects = os.listdir(path_annotations)
+        for obj in path_objects:
+            object_key = obj.split("_", 1)[0]
+            try:
+                val = object_dict[object_key]
+            except KeyError:
                 continue
+            print("%s/%s" % (room, obj[:-4]))
+            xyz_object_path = os.path.join(path_annotations, obj)
+            try:
+                xyz_object = np.loadtxt(xyz_object_path)[:,:] # (N,6)
+            except ValueError as e:
+                print("ERROR: cannot load %s: %s" % (xyz_object_path, e))
+                continue
+            label_object = np.tile(val, (xyz_object.shape[0], 1)) # (N,1)
+            xyz_room = np.vstack((xyz_room, xyz_object))
+            label_room = np.vstack((label_room, label_object))
 
-            xyz_Room = np.vstack((xyz_Room,xyz_object))
-            label_Room = np.vstack((label_Room,label_object))
+        xyz_room = np.delete(xyz_room, [0], 0)
+        label_room = np.delete(label_room, [0], 0)
 
-        xyz_Room = np.delete(xyz_Room,[0],0)
-        label_Room = np.delete(label_Room,[0],0)
+        np.save(path_prepare_label+"/xyzrgb.npy", xyz_room)
+        np.save(path_prepare_label+"/label.npy", label_room)
 
-        np.save(path_prepare_label+"/xyzrgb.npy",xyz_Room)
-        np.save(path_prepare_label+"/label.npy",label_Room)
-
-
+        # Marker indicating we've processed this room
+        open(os.path.join(path_prepare_label, ".labels"), "w").close()
