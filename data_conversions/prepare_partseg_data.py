@@ -129,6 +129,11 @@ def main():
                         idx_h5 = idx_h5 + 1
                     idx = idx + 1
 
+    train_val_txt = os.path.join(root, "train_val_files.txt")
+    with open(train_val_txt, "w") as train_val:
+        for part in ("train", "val"):
+            part_txt = os.path.join(root, "%s_files.txt" % part)
+            train_val.write(open(part_txt, "r").read())
 
 if __name__ == '__main__':
     main()
