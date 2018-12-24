@@ -16,6 +16,12 @@ See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">preprint on ar
 
 Pretrained models can be downloaded from <a href="https://1drv.ms/f/s!AiHh4BK32df6gYFCzzpRz0nsJmQxSg" target="_blank">here</a>.
 
+### Performance on recent benchmarks
+<a href="https://arxiv.org/abs/1812.02713" target="_blank">PartNet: A Large-scale Benchmark for Fine-grained and Hierarchical Part-level 3D Object Understanding</a>
+
+<a href="https://arxiv.org/abs/1812.06216" target="_blank">ABC: A Big CAD Model Dataset For Geometric Deep Learning</a>
+
+
 **We highly welcome issues, rather than emails, for PointCNN related questions.**
 
 ## License
