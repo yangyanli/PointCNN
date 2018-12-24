@@ -165,7 +165,9 @@ Here we list the commands for training/evaluating PointCNN on classification and
   python3 s3dis_merge.py -d <path to *_pred.h5>
   python3 eval_s3dis.py
   ```
-  Please notice that these command just for Area 1 (specified by -a 1 option) validation. Results on other Areas can be computed by iterating -a option.
+ We use a hidden marker file to note when prepare is finished to avoid re-processing. This cache can be invalidated by deleting the markers. 
+ 
+ Please notice that these command just for Area 1 (specified by -a 1 option) validation. Results on other Areas can be computed by iterating -a option.
 
   * #### ScanNet
   Please refer to [data_conversions](data_conversions/README.md) for downloading ScanNet, then:
