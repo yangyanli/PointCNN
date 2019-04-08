@@ -21,6 +21,13 @@ Pretrained models can be downloaded from <a href="https://1drv.ms/f/s!AiHh4BK32d
 
 <a href="https://arxiv.org/abs/1812.06216" target="_blank">ABC: A Big CAD Model Dataset For Geometric Deep Learning</a>
 
+### Practical applications
+<a href="https://medium.com/geoai/3d-cities-deep-learning-in-three-dimensional-space-29f9dafdfd73" target="_blank">3D cities: Deep Learning in three-dimensional space</a> (from <a href="https://www.esri.com/en-us/home" target="_blank">Esri</a>)
+
+### More Implementations
+* <a href="https://github.com/rusty1s/pytorch_geometric" target="_blank">Pytorch implementation from PyTorch Geometric</a>
+* <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation from Berkeley CS294-131 Course Proj</a>
+* <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
 
 **We highly welcome issues, rather than emails, for PointCNN related questions.**
 
@@ -202,10 +209,3 @@ Here we list the commands for training/evaluating PointCNN on classification and
   cd <your path>/PointCNN
   tensorboard --logdir=../models/<seg/cls> <--port=6006>
   ```
-
-
-  ## More PointCNN Implementations
-  * <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
-
-  * <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation from Berkeley CS294-131 Course Proj</a>
-  * <a href="https://github.com/rusty1s/pytorch_geometric" target="_blank">Pytorch implementation from PyTorch Geometric</a>
