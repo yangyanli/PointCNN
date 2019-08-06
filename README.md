@@ -1,6 +1,6 @@
 # PointCNN: Convolution On X-Transformed Points
 
-Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>, Rui Bu, Mingchao Sun, Wei Wu, Xinhan Di, and Baoquan Chen.
+Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>, Rui Bu, Mingchao Sun, Wei Wu, Xinhan Di, and <a href="https://cfcs.pku.edu.cn/baoquan/" target="_blank">Baoquan Chen</a>.
 
 ## Introduction
 
@@ -23,6 +23,8 @@ Pretrained models can be downloaded from <a href="https://1drv.ms/f/s!AiHh4BK32d
 
 ### Practical Applications
 <a href="https://medium.com/geoai/3d-cities-deep-learning-in-three-dimensional-space-29f9dafdfd73" target="_blank">3D cities: Deep Learning in three-dimensional space</a> (from <a href="https://www.esri.com/en-us/home" target="_blank">Esri</a>)
+
+<a href="https://medium.com/geoai/pointcnn-replacing-50-000-man-hours-with-ai-d7397c1e7ffe" target="_blank">PointCNN: replacing 50,000 man hours with AI</a> (from <a href="https://www.esri.com/en-us/home" target="_blank">Esri</a>)
 
 ### More Implementations
 * <a href="https://github.com/rusty1s/pytorch_geometric" target="_blank">Pytorch implementation from PyTorch Geometric</a>
