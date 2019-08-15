@@ -17,6 +17,8 @@ See our <a href="http://arxiv.org/abs/1801.07791" target="_blank">preprint on ar
 Pretrained models can be downloaded from <a href="https://1drv.ms/f/s!AiHh4BK32df6gYFCzzpRz0nsJmQxSg" target="_blank">here</a>.
 
 ### Performance on Recent Benchmarks
+<a href="https://hkust-vgd.github.io/scanobjectnn/" target="_blank">Revisiting Point Cloud Classification: A New Benchmark Dataset and Classification Model on Real-World Data</a>
+
 <a href="https://arxiv.org/abs/1812.02713" target="_blank">PartNet: A Large-scale Benchmark for Fine-grained and Hierarchical Part-level 3D Object Understanding</a>
 
 <a href="https://arxiv.org/abs/1812.06216" target="_blank">ABC: A Big CAD Model Dataset For Geometric Deep Learning</a>
