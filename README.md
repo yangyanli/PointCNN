@@ -208,7 +208,7 @@ Here we list the commands for training/evaluating PointCNN on classification and
   ```
 
 * ### Tensorboard
-  If you want to moniter your train step, we recommand you use following command
+  If you want to monitor your train step, we recommend you use the following command
   ```
   cd <your path>/PointCNN
   tensorboard --logdir=../models/<seg/cls> <--port=6006>
