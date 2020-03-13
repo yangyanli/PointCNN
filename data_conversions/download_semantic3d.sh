@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -e
+
 BASE_DIR=${1-../../data/semantic3d}
 
 # Training data
