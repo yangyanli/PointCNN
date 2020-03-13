@@ -23,10 +23,6 @@ wget -c -N http://semantic3d.net/data/point-clouds/training1/bildstein_station3_
 wget -c -N http://semantic3d.net/data/point-clouds/training1/domfountain_station2_xyz_intensity_rgb.7z -P $BASE_DIR/val/
 wget -c -N http://semantic3d.net/data/point-clouds/training1/sg27_station4_intensity_rgb.7z -P $BASE_DIR/val/
 wget -c -N http://semantic3d.net/data/point-clouds/training1/untermaederbrunnen_station3_xyz_intensity_rgb.7z -P $BASE_DIR/val/
-mv $BASE_DIR/train/bildstein_station3_xyz_intensity_rgb.labels $BASE_DIR/val
-mv $BASE_DIR/train/domfountain_station2_xyz_intensity_rgb.labels $BASE_DIR/val
-mv $BASE_DIR/train/sg27_station4_intensity_rgb.labels $BASE_DIR/val
-mv $BASE_DIR/train/untermaederbrunnen_station3_xyz_intensity_rgb.labels $BASE_DIR/val
 
 # Test data
 wget -c -N http://semantic3d.net/data/point-clouds/testing1/birdfountain_station1_xyz_intensity_rgb.7z -P $BASE_DIR/test/
