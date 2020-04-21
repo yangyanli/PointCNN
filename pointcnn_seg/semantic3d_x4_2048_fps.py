@@ -31,8 +31,8 @@ rotation_order = 'rxyz'
 scaling_range = [0.0, 0.0, 0.0, 'g']
 scaling_range_val = [0, 0, 0, 'u']
 
-sample_num_variance = 1 // 8
-sample_num_clip = 1 // 4
+sample_num_variance = 1 / 8
+sample_num_clip = 1 / 4
 
 x = 8
 

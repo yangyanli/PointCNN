@@ -275,8 +275,8 @@ def main():
                     data_utils.grouped_shuffle([data_train, data_num_train, label_train])
 
             offset = int(random.gauss(0, sample_num * setting.sample_num_variance))
-            offset = max(offset, -sample_num * setting.sample_num_clip)
-            offset = min(offset, sample_num * setting.sample_num_clip)
+            offset = max(offset, int(-sample_num * setting.sample_num_clip))
+            offset = min(offset, int(sample_num * setting.sample_num_clip))
             sample_num_train = sample_num + offset
             xforms_np, rotations_np = pf.get_xforms(batch_size_train,
                                                     rotation_range=rotation_range,
