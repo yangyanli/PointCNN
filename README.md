@@ -193,6 +193,9 @@ Here we list the commands for training/evaluating PointCNN on classification and
   python3 eval_scannet.py -d <path to *_pred.h5> -p <path to scannet_test.pickle>
   ```
   * #### Semantic3D
+
+  Please check the free disk space before start, about 900 GB will be required.
+
   ```
   cd data_conversions
   bash download_semantic3d.sh
