@@ -170,8 +170,8 @@ Here we list the commands for training/evaluating PointCNN on classification and
   python3 prepare_s3dis_data.py
   python3 prepare_s3dis_filelists.py
   mv S3DIS_files/* ../../data/S3DIS/out_part_rgb/
-  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps -a 1
-  ./test_s3dis.sh -g 0 -x s3dis_x8_2048_k16_fps -a 1 -l ../../models/seg/s3dis_x8_2048_fps_k16_xxxx/ckpts/iter-xxxxx -r 4
+  ./train_val_s3dis.sh -g 0 -x s3dis_x8_2048_fps -a 1
+  ./test_s3dis.sh -g 0 -x s3dis_x8_2048_fps -a 1 -l ../../models/seg/s3dis_x8_2048_fps_xxxx/ckpts/iter-xxxxx -r 4
   cd ../evaluation
   python3 s3dis_merge.py -d <path to *_pred.h5>
   python3 eval_s3dis.py
