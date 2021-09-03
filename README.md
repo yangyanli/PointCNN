@@ -28,10 +28,14 @@ Pretrained models can be downloaded from <a href="https://1drv.ms/f/s!AiHh4BK32d
 
 <a href="https://medium.com/geoai/pointcnn-replacing-50-000-man-hours-with-ai-d7397c1e7ffe" target="_blank">PointCNN: replacing 50,000 man hours with AI</a> (from <a href="https://www.esri.com/en-us/home" target="_blank">Esri</a>)
 
+<a href="https://developers.arcgis.com/python/guide/point-cloud-segmentation-using-pointcnn/" target="_blank">
+Point Cloud Segmentation using PointCNN in ArcGIS API for Python</a> (from <a href="https://www.esri.com/en-us/home" target="_blank">Esri</a>)
+
 ### More Implementations
 * <a href="https://github.com/rusty1s/pytorch_geometric" target="_blank">Pytorch implementation from PyTorch Geometric</a>
 * <a href="https://github.com/hxdengBerkeley/PointCNN.Pytorch" target="_blank">Pytorch implementation from Berkeley CS294-131 Course Proj</a>
 * <a href="https://github.com/chinakook/PointCNN.MX" target="_blank">MXNet implementation</a>
+* <a href="https://github.com/Jittor/PointCloudLib" target="_blank">Jittor implementation</a>
 
 **We highly welcome issues, rather than emails, for PointCNN related questions.**
 
