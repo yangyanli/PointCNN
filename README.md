@@ -2,6 +2,12 @@
 
 Created by <a href="http://yangyan.li" target="_blank">Yangyan Li</a>, Rui Bu, Mingchao Sun, Wei Wu, Xinhan Di, and <a href="https://cfcs.pku.edu.cn/baoquan/" target="_blank">Baoquan Chen</a>.
 
+> **🚀 Exciting Update: Introducing PointCNN++**
+> 
+> We are thrilled to share our most recent work, **[PointCNN++](https://github.com/ant-research/pointelligence)**! Building upon the foundations laid here, PointCNN++ features our latest architectural advancements, modernized codebase, and improved performance for point cloud processing. 
+>
+> We highly encourage researchers and developers to check out the new repository for state-of-the-art results and ongoing development.
+
 ## Introduction
 
 PointCNN is a simple and general framework for feature learning from point cloud, which refreshed five benchmark records in point cloud processing (as of Jan. 23, 2018), including:
